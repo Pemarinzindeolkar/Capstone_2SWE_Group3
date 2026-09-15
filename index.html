@@ -21,7 +21,8 @@
         <!-- ========================================== -->
         <div id="login-screen" class="screen active w-full h-full">
             <!-- Left Panel (Brand Color) -->
-            <div class="w-1/2 bg-brand p-12 flex flex-col justify-between relative text-white">
+            <div class="brand-panel w-1/2 bg-brand p-12 flex flex-col justify-between relative text-white">
+                <div class="brand-badge">Curated Works</div>
                 
                 <!-- LOGO CENTERED -->
                 <div class="flex flex-col items-center justify-center mt-10">
@@ -36,14 +37,17 @@
 
                 <!-- Buttons Bottom -->
                 <div class="flex gap-4 justify-center">
-                    <button id="btn-go-signup" class="px-6 py-2 border border-white/50 text-white text-sm hover:bg-white hover:text-brand transition rounded">BUY ARTWORK</button>
-                    <button id="btn-go-artist" class="px-6 py-2 border border-white/50 text-white text-sm hover:bg-white hover:text-brand transition rounded">SELL ARTWORK</button>
+                    <button id="btn-go-signup" class="cta-btn px-6 py-2 border border-white/50 text-white text-sm hover:bg-white hover:text-brand transition rounded">BUY ARTWORK</button>
+                    <button id="btn-go-artist" class="cta-btn px-6 py-2 border border-white/50 text-white text-sm hover:bg-white hover:text-brand transition rounded">SELL ARTWORK</button>
                 </div>
             </div>
 
             <!-- Right Panel (Form) -->
-            <div class="w-1/2 bg-white p-12 flex flex-col justify-center">
-                <h2 class="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h2>
+            <div class="form-panel w-1/2 bg-white p-12 flex flex-col justify-center">
+                <div class="mb-6">
+                    <span class="eyebrow">Welcome</span>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h2>
+                </div>
                 <p class="text-gray-500 text-sm mb-8">Please enter your details to access your account.</p>
 
                 <form id="login-form" class="space-y-6">
@@ -56,7 +60,7 @@
                         <input type="password" id="login-password" required placeholder="••••••••" class="input-field">
                     </div>
 
-                    <button type="submit" class="w-full bg-gray-900 text-white py-3 rounded text-sm font-semibold hover:bg-gray-700 transition mt-4">Log In</button>
+                    <button type="submit" class="primary-btn w-full bg-gray-900 text-white py-3 rounded text-sm font-semibold hover:bg-gray-700 transition mt-4">Log In</button>
                     
                     <div class="text-center text-xs text-gray-500 mt-4">
                         Don't have an account? <span id="link-to-signup" class="text-brand font-bold cursor-pointer hover:underline">Sign up</span>
@@ -70,7 +74,8 @@
         <!-- ========================================== -->
         <div id="signup-screen" class="screen w-full h-full">
             <!-- Left Panel -->
-            <div class="w-1/2 bg-brand p-12 flex flex-col justify-between relative text-white">
+            <div class="brand-panel w-1/2 bg-brand p-12 flex flex-col justify-between relative text-white">
+                <div class="brand-badge">Collectors Club</div>
                 
                 <!-- LOGO CENTERED -->
                 <div class="flex flex-col items-center justify-center mt-10">
@@ -85,14 +90,17 @@
 
                 <!-- Buttons Bottom -->
                 <div class="flex gap-4 justify-center">
-                    <button id="btn-buy-signup" class="px-6 py-2 border border-white/50 text-white text-sm hover:bg-white hover:text-brand transition rounded">BUY ARTWORK</button>
-                    <button id="btn-sell-signup" class="px-6 py-2 border border-white/50 text-white text-sm hover:bg-white hover:text-brand transition rounded">SELL ARTWORK</button>
+                    <button id="btn-buy-signup" class="cta-btn px-6 py-2 border border-white/50 text-white text-sm hover:bg-white hover:text-brand transition rounded">BUY ARTWORK</button>
+                    <button id="btn-sell-signup" class="cta-btn px-6 py-2 border border-white/50 text-white text-sm hover:bg-white hover:text-brand transition rounded">SELL ARTWORK</button>
                 </div>
             </div>
 
             <!-- Right Panel -->
-            <div class="w-1/2 bg-white p-12 flex flex-col justify-center">
-                <h2 class="text-3xl font-bold text-gray-800 mb-2">Create Account</h2>
+            <div class="form-panel w-1/2 bg-white p-12 flex flex-col justify-center">
+                <div class="mb-6">
+                    <span class="eyebrow">Join us</span>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">Create Account</h2>
+                </div>
                 <p class="text-gray-500 text-sm mb-6">Join our community of artists and collectors.</p>
 
                 <form id="signup-form" class="space-y-4">
@@ -114,7 +122,7 @@
                         <label for="terms" class="text-xs text-gray-500">I agree to the Terms & Conditions</label>
                     </div>
 
-                    <button type="submit" class="w-full bg-gray-900 text-white py-3 rounded text-sm font-semibold hover:bg-gray-700 transition mt-4">Sign Up</button>
+                    <button type="submit" class="primary-btn w-full bg-gray-900 text-white py-3 rounded text-sm font-semibold hover:bg-gray-700 transition mt-4">Sign Up</button>
                     
                     <div class="text-center text-xs text-gray-500 mt-4">
                         Already have an account? <span id="link-to-login" class="text-brand font-bold cursor-pointer hover:underline">Log in</span>
@@ -128,7 +136,7 @@
         <!-- ========================================== -->
         <div id="artist-step1" class="screen w-full h-full bg-cream text-gray-900">
             <!-- Sidebar -->
-            <div class="w-1/3 p-10 border-r border-gray-200 flex flex-col justify-between">
+            <div class="step-sidebar w-1/3 p-10 border-r border-gray-200 flex flex-col justify-between">
                 <div>
                     <div class="text-2xl font-bold mb-8 tracking-widest text-brand">Labzo</div>
                     <h2 class="text-2xl font-bold mb-2">Artist Registration</h2>
@@ -153,7 +161,10 @@
             <!-- Main Form -->
             <div class="w-2/3 p-10 flex flex-row gap-12 bg-white">
                 <div class="flex-1 space-y-6">
-                    <h3 class="text-lg font-bold mb-4 border-b pb-2">Step 1: Personal Details</h3>
+                    <div class="flex items-center justify-between border-b pb-2">
+                        <h3 class="text-lg font-bold">Step 1: Personal Details</h3>
+                        <span class="eyebrow">Identity</span>
+                    </div>
                     
                     <form id="artist-form-1" class="space-y-4">
                         <div>
@@ -175,13 +186,13 @@
                     </form>
 
                     <div class="pt-6 flex gap-4">
-                        <button type="button" id="btn-artist-next-1" class="px-8 py-3 bg-gray-900 text-white text-sm font-bold rounded shadow hover:bg-gray-700 transition">Next Step</button>
-                        <button type="button" id="btn-artist-cancel-1" class="px-8 py-3 border border-gray-300 text-gray-600 text-sm font-bold rounded hover:bg-gray-50 transition">Cancel</button>
+                        <button type="button" id="btn-artist-next-1" class="primary-btn px-8 py-3 bg-gray-900 text-white text-sm font-bold rounded shadow hover:bg-gray-700 transition">Next Step</button>
+                        <button type="button" id="btn-artist-cancel-1" class="secondary-btn px-8 py-3 border border-gray-300 text-gray-600 text-sm font-bold rounded hover:bg-gray-50 transition">Cancel</button>
                     </div>
                 </div>
 
                 <div class="w-1/3">
-                    <div class="bg-gray-900 text-white p-6 rounded text-xs leading-relaxed shadow-lg">
+                    <div class="step-card bg-gray-900 text-white p-6 rounded text-xs leading-relaxed shadow-lg">
                         <h4 class="font-bold mb-2 text-brand text-sm">Why we ask this info</h4>
                         <p class="text-gray-400">We need your details to verify your identity and ensure the security of your artist account.</p>
                     </div>
@@ -194,7 +205,7 @@
         <!-- ========================================== -->
         <div id="artist-step2" class="screen w-full h-full bg-cream text-gray-900">
             <!-- Sidebar -->
-            <div class="w-1/3 p-10 border-r border-gray-200 flex flex-col justify-between">
+            <div class="step-sidebar w-1/3 p-10 border-r border-gray-200 flex flex-col justify-between">
                 <div>
                     <div class="text-2xl font-bold mb-8 tracking-widest text-brand">Labzo</div>
                     <h2 class="text-2xl font-bold mb-2">Artist Registration</h2>
@@ -218,7 +229,10 @@
             <!-- Main Form -->
             <div class="w-2/3 p-10 flex flex-row gap-12 bg-white overflow-y-auto">
                 <div class="flex-1 space-y-6">
-                    <h3 class="text-lg font-bold mb-4 border-b pb-2">Step 2: Workshop Details</h3>
+                    <div class="flex items-center justify-between border-b pb-2">
+                        <h3 class="text-lg font-bold">Step 2: Workshop Details</h3>
+                        <span class="eyebrow">Studio</span>
+                    </div>
                     
                     <form id="artist-form-2" class="space-y-4">
                         <div>
@@ -237,7 +251,7 @@
                             </div>
                         </div>
 
-                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center mt-4 bg-gray-50">
+                        <div class="upload-box border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center mt-4 bg-gray-50">
                             <div class="w-10 h-10 bg-brand rounded-full flex items-center justify-center mb-2">
                                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                             </div>
@@ -246,13 +260,13 @@
                     </form>
 
                     <div class="pt-6 flex gap-4">
-                        <button type="button" id="btn-artist-next-2" class="px-8 py-3 bg-gray-900 text-white text-sm font-bold rounded shadow hover:bg-gray-700 transition">Next Step</button>
-                        <button type="button" id="btn-artist-back-2" class="px-8 py-3 border border-gray-300 text-gray-600 text-sm font-bold rounded hover:bg-gray-50 transition">Back</button>
+                        <button type="button" id="btn-artist-next-2" class="primary-btn px-8 py-3 bg-gray-900 text-white text-sm font-bold rounded shadow hover:bg-gray-700 transition">Next Step</button>
+                        <button type="button" id="btn-artist-back-2" class="secondary-btn px-8 py-3 border border-gray-300 text-gray-600 text-sm font-bold rounded hover:bg-gray-50 transition">Back</button>
                     </div>
                 </div>
 
                 <div class="w-1/3">
-                    <div class="bg-gray-900 text-white p-6 rounded text-xs leading-relaxed shadow-lg">
+                    <div class="step-card bg-gray-900 text-white p-6 rounded text-xs leading-relaxed shadow-lg">
                         <h4 class="font-bold mb-2 text-brand text-sm">Why we ask this info</h4>
                         <p class="text-gray-400">Highlighting your local workshop helps buyers understand the origin of the art.</p>
                     </div>
@@ -265,7 +279,7 @@
         <!-- ========================================== -->
         <div id="artist-step3" class="screen w-full h-full bg-cream text-gray-900">
             <!-- Sidebar -->
-            <div class="w-1/3 p-10 border-r border-gray-200 flex flex-col justify-between">
+            <div class="step-sidebar w-1/3 p-10 border-r border-gray-200 flex flex-col justify-between">
                 <div>
                     <div class="text-2xl font-bold mb-8 tracking-widest text-brand">Labzo</div>
                     <h2 class="text-2xl font-bold mb-2">Artist Registration</h2>
@@ -289,7 +303,10 @@
             <!-- Main Form -->
             <div class="w-2/3 p-10 flex flex-row gap-12 bg-white overflow-y-auto">
                 <div class="flex-1 space-y-6">
-                    <h3 class="text-lg font-bold mb-4 border-b pb-2">Step 3: Showcase Your Work</h3>
+                    <div class="flex items-center justify-between border-b pb-2">
+                        <h3 class="text-lg font-bold">Step 3: Showcase Your Work</h3>
+                        <span class="eyebrow">Portfolio</span>
+                    </div>
                     
                     <div class="flex items-center gap-6 mb-6">
                         <div class="w-20 h-20 bg-gray-100 rounded-full border border-gray-300 flex items-center justify-center overflow-hidden cursor-pointer hover:border-brand">
@@ -327,13 +344,13 @@
                     </div>
 
                     <div class="pt-6 flex gap-4">
-                        <button type="button" id="btn-artist-submit" class="px-8 py-3 bg-gray-900 text-white text-sm font-bold rounded shadow hover:bg-gray-700 transition">Complete Registration</button>
-                        <button type="button" id="btn-artist-back-3" class="px-8 py-3 border border-gray-300 text-gray-600 text-sm font-bold rounded hover:bg-gray-50 transition">Back</button>
+                        <button type="button" id="btn-artist-submit" class="primary-btn px-8 py-3 bg-gray-900 text-white text-sm font-bold rounded shadow hover:bg-gray-700 transition">Complete Registration</button>
+                        <button type="button" id="btn-artist-back-3" class="secondary-btn px-8 py-3 border border-gray-300 text-gray-600 text-sm font-bold rounded hover:bg-gray-50 transition">Back</button>
                     </div>
                 </div>
 
                 <div class="w-1/3">
-                    <div class="bg-gray-900 text-white p-6 rounded text-xs leading-relaxed shadow-lg">
+                    <div class="step-card bg-gray-900 text-white p-6 rounded text-xs leading-relaxed shadow-lg">
                         <h4 class="font-bold mb-2 text-brand text-sm">Why we ask this info</h4>
                         <p class="text-gray-400">High-quality photos attract more buyers. Make sure your artwork is well-lit and clearly visible.</p>
                     </div>
@@ -345,6 +362,7 @@
         <!-- SCREEN 6: DASHBOARD (Post-Login) -->
         <!-- ========================================== -->
         <div id="dashboard-screen" class="screen w-full h-full bg-cream flex-col items-center justify-center text-center p-12">
+            <div class="brand-badge dashboard-badge">Verified Member</div>
             <div class="w-20 h-20 bg-brand rounded-full flex items-center justify-center mb-6">
                 <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
             </div>
@@ -358,7 +376,7 @@
                 </div>
             </div>
 
-            <button id="btn-logout" class="px-8 py-3 bg-gray-900 text-white text-sm font-bold rounded shadow hover:bg-gray-700 transition">Log Out</button>
+            <button id="btn-logout" class="primary-btn px-8 py-3 bg-gray-900 text-white text-sm font-bold rounded shadow hover:bg-gray-700 transition">Log Out</button>
         </div>
 
     </div>
