@@ -5,7 +5,7 @@ body {
 
 /* Professional Palette */
 .bg-brand { 
-    background-color: #8C7A6B; /* Sophisticated Light Brown/Taupe */
+    background-color: hsl(243, 83%, 59%); /* Sophisticated Light Brown/Taupe */
 }
 
 .bg-cream { 
@@ -13,7 +13,7 @@ body {
 }
 
 .text-brand { 
-    color: #8C7A6B; 
+    color: hsl(258, 66%, 44%); 
 }
 
 /* Hide Scrollbar for cleaner look */
@@ -50,12 +50,12 @@ body {
 
 .input-field:focus {
     outline: none;
-    border-color: #8C7A6B;
-    box-shadow: 0 0 0 1px #8C7A6B;
+    border-color: hsl(235, 55%, 49%);
+    box-shadow: 0 0 0 1px hsl(238, 60%, 46%);
 }
 
 .input-field::placeholder {
-    color: #9CA3AF;
+    color: hsl(244, 69%, 45%);
 }
 
 /* --- LOGO STYLES (CENTERED, ORIGINAL IMAGE) --- */
