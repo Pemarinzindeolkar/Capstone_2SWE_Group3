@@ -58,6 +58,187 @@ body {
     color: #9CA3AF;
 }
 
+/* ============================================ */
+/* LOGIN — VERY CREATIVE / ARTISTIC COLLAGE THEME */
+/* ============================================ */
+
+.collage-theme {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    --ink: #241B2F;
+    --coral: #E8503A;
+    --teal: #1E8A82;
+    --gold: #F0B429;
+    --violet: #6C4AB6;
+    --paper: #FBF3E7;
+    color: var(--ink);
+}
+
+.collage-backdrop {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+/* The floating, slightly-tilted zine card */
+.collage-card {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-1.4deg);
+    width: 400px;
+    max-width: 88%;
+    background: #FFFDF8;
+    border: 3px solid var(--ink);
+    box-shadow: 10px 10px 0 var(--coral);
+    padding: 2.75rem 2.5rem 2.25rem;
+    z-index: 2;
+}
+
+.collage-logo-badge {
+    width: 64px;
+    height: 64px;
+    border-radius: 9999px;
+    background: var(--gold);
+    border: 3px solid var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transform: rotate(-6deg);
+    margin-bottom: 1.25rem;
+}
+
+.collage-logo-img {
+    width: 70%;
+    height: 70%;
+    object-fit: contain;
+    transform: rotate(6deg);
+}
+
+.collage-headline {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 3rem;
+    line-height: 1;
+    color: var(--ink);
+    margin-bottom: 0.6rem;
+}
+
+.collage-headline-dot {
+    color: var(--coral);
+}
+
+.collage-subcopy {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.88rem;
+    color: #55495F;
+    max-width: 34ch;
+}
+
+.collage-label {
+    display: block;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 0.35rem;
+}
+
+.collage-input {
+    width: 100%;
+    background: #FBF3E7;
+    border: 2px solid var(--ink);
+    padding: 0.65rem 0.85rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.92rem;
+    color: var(--ink);
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.collage-input::placeholder {
+    color: #A99BAE;
+}
+
+.collage-input:focus {
+    outline: none;
+    box-shadow: 3px 3px 0 var(--teal);
+    transform: translate(-2px, -2px);
+}
+
+.collage-btn-primary {
+    width: 100%;
+    background: var(--coral);
+    color: #FFFDF8;
+    border: 3px solid var(--ink);
+    padding: 0.8rem 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 var(--ink);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    margin-top: 0.5rem;
+}
+
+.collage-btn-primary:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--ink);
+}
+
+.collage-link-accent {
+    color: var(--teal);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.collage-link-accent:hover {
+    text-decoration: underline;
+}
+
+.collage-cta-row {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 1rem;
+    z-index: 2;
+}
+
+.collage-sticker {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.6rem 1.4rem;
+    border-radius: 9999px;
+    border: 2px solid var(--ink);
+    cursor: pointer;
+    color: var(--ink);
+    transition: transform 0.15s ease;
+}
+
+.collage-sticker:hover {
+    transform: translateY(-2px);
+}
+
+.collage-sticker-teal {
+    background: var(--teal);
+    color: #FFFDF8;
+    transform: rotate(-2deg);
+}
+
+.collage-sticker-violet {
+    background: var(--violet);
+    color: #FFFDF8;
+    transform: rotate(2deg);
+}
+
 /* --- LOGO STYLES (CENTERED, ORIGINAL IMAGE) --- */
 
 .logo-img-large {
