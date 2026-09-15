@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Labzo | Art Marketplace</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100 text-gray-900 min-h-screen flex items-center justify-center p-4">
+
+    <!-- Main App Container -->
+    <div id="app-container" class="w-full max-w-[1200px] h-[750px] bg-white shadow-2xl rounded-xl overflow-hidden relative">
+
+        <!-- ========================================== -->
+        <!-- SCREEN 1: LOGIN -->
+        <!-- ========================================== -->
+        <div id="login-screen" class="screen active w-full h-full">
+            <!-- Left Panel (Brand Color) -->
+            <div class="w-1/2 bg-brand p-12 flex flex-col justify-between relative text-white">
+                
+                <!-- LOGO CENTERED -->
+                <div class="flex flex-col items-center justify-center mt-10">
+                    <img src="logo.png" alt="Labzo Logo" class="logo-img-large">
+                    <p class="slogan-text-small">Art from the Workshop</p>
+                </div>
+                
+                <!-- Quote Centered -->
+                <div class="max-w-md mx-auto text-center">
+                    <p class="text-2xl font-light italic leading-relaxed text-gray-200">"Closing gaps, adding values and making everyone happy!"</p>
+                </div>
+
+                <!-- Buttons Bottom -->
+                <div class="flex gap-4 justify-center">
+                    <button id="btn-go-signup" class="px-6 py-2 border border-white/50 text-white text-sm hover:bg-white hover:text-brand transition rounded">BUY ARTWORK</button>
+                    <button id="btn-go-artist" class="px-6 py-2 border border-white/50 text-white text-sm hover:bg-white hover:text-brand transition rounded">SELL ARTWORK</button>
+                </div>
+            </div>
+
+            <!-- Right Panel (Form) -->
+            <div class="w-1/2 bg-white p-12 flex flex-col justify-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h2>
+                <p class="text-gray-500 text-sm mb-8">Please enter your details to access your account.</p>
+
+                <form id="login-form" class="space-y-6">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">Email address</label>
+                        <input type="email" id="login-email" required placeholder="name@example.com" class="input-field">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">Password</label>
+                        <input type="password" id="login-password" required placeholder="••••••••" class="input-field">
+                    </div>
+
+                    <button type="submit" class="w-full bg-gray-900 text-white py-3 rounded text-sm font-semibold hover:bg-gray-700 transition mt-4">Log In</button>
+                    
+                    <div class="text-center text-xs text-gray-500 mt-4">
+                        Don't have an account? <span id="link-to-signup" class="text-brand font-bold cursor-pointer hover:underline">Sign up</span>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- SCREEN 2: SIGN UP (BUYER) -->
+        <!-- ========================================== -->
+        <div id="signup-screen" class="screen w-full h-full">
+            <!-- Left Panel -->
+            <div class="w-1/2 bg-brand p-12 flex flex-col justify-between relative text-white">
+                
+                <!-- LOGO CENTERED -->
+                <div class="flex flex-col items-center justify-center mt-10">
+                    <img src="logo.png" alt="Labzo Logo" class="logo-img-large">
+                    <p class="slogan-text-small">Art from the Workshop</p>
+                </div>
+
+                <!-- Quote Centered -->
+                <div class="max-w-md mx-auto text-center">
+                    <p class="text-2xl font-light italic leading-relaxed text-gray-200">"I was never poor, I was just running out of space in the country I had created in."</p>
+                </div>
+
+                <!-- Buttons Bottom -->
+                <div class="flex gap-4 justify-center">
+                    <button id="btn-buy-signup" class="px-6 py-2 border border-white/50 text-white text-sm hover:bg-white hover:text-brand transition rounded">BUY ARTWORK</button>
+                    <button id="btn-sell-signup" class="px-6 py-2 border border-white/50 text-white text-sm hover:bg-white hover:text-brand transition rounded">SELL ARTWORK</button>
+                </div>
+            </div>
+
+            <!-- Right Panel -->
+            <div class="w-1/2 bg-white p-12 flex flex-col justify-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Create Account</h2>
+                <p class="text-gray-500 text-sm mb-6">Join our community of artists and collectors.</p>
+
+                <form id="signup-form" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">Full Name</label>
+                        <input type="text" id="signup-name" required class="input-field">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">Email</label>
+                        <input type="email" id="signup-email" required class="input-field">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">Password</label>
+                        <input type="password" id="signup-password" required class="input-field">
+                    </div>
+
+                    <div class="flex items-center gap-2 mt-4">
+                        <input type="checkbox" id="terms" required class="accent-brand w-4 h-4">
+                        <label for="terms" class="text-xs text-gray-500">I agree to the Terms & Conditions</label>
+                    </div>
+
+                    <button type="submit" class="w-full bg-gray-900 text-white py-3 rounded text-sm font-semibold hover:bg-gray-700 transition mt-4">Sign Up</button>
+                    
+                    <div class="text-center text-xs text-gray-500 mt-4">
+                        Already have an account? <span id="link-to-login" class="text-brand font-bold cursor-pointer hover:underline">Log in</span>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- SCREEN 3: ARTIST SIGN UP - STEP 1 -->
+        <!-- ========================================== -->
+        <div id="artist-step1" class="screen w-full h-full bg-cream text-gray-900">
+            <!-- Sidebar -->
+            <div class="w-1/3 p-10 border-r border-gray-200 flex flex-col justify-between">
+                <div>
+                    <div class="text-2xl font-bold mb-8 tracking-widest text-brand">Labzo</div>
+                    <h2 class="text-2xl font-bold mb-2">Artist Registration</h2>
+                    
+                    <div class="mt-8 space-y-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-brand text-white flex items-center justify-center text-xs font-bold">1</div>
+                            <span class="font-semibold text-sm">Your Details</span>
+                        </div>
+                        <div class="flex items-center gap-3 opacity-30">
+                            <div class="w-8 h-8 rounded-full bg-gray-400 text-white flex items-center justify-center text-xs font-bold">2</div>
+                            <span class="text-sm font-medium">Workshop</span>
+                        </div>
+                        <div class="flex items-center gap-3 opacity-30">
+                            <div class="w-8 h-8 rounded-full bg-gray-400 text-white flex items-center justify-center text-xs font-bold">3</div>
+                            <span class="text-sm font-medium">Shop Profile</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Form -->
+            <div class="w-2/3 p-10 flex flex-row gap-12 bg-white">
+                <div class="flex-1 space-y-6">
+                    <h3 class="text-lg font-bold mb-4 border-b pb-2">Step 1: Personal Details</h3>
+                    
+                    <form id="artist-form-1" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Full Name</label>
+                            <input type="text" id="artist-name" required class="input-field">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Email</label>
+                            <input type="email" id="artist-email" required class="input-field">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Password</label>
+                            <input type="password" id="artist-pass" required class="input-field">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Phone Number</label>
+                            <input type="tel" id="artist-phone" required class="input-field">
+                        </div>
+                    </form>
+
+                    <div class="pt-6 flex gap-4">
+                        <button type="button" id="btn-artist-next-1" class="px-8 py-3 bg-gray-900 text-white text-sm font-bold rounded shadow hover:bg-gray-700 transition">Next Step</button>
+                        <button type="button" id="btn-artist-cancel-1" class="px-8 py-3 border border-gray-300 text-gray-600 text-sm font-bold rounded hover:bg-gray-50 transition">Cancel</button>
+                    </div>
+                </div>
+
+                <div class="w-1/3">
+                    <div class="bg-gray-900 text-white p-6 rounded text-xs leading-relaxed shadow-lg">
+                        <h4 class="font-bold mb-2 text-brand text-sm">Why we ask this info</h4>
+                        <p class="text-gray-400">We need your details to verify your identity and ensure the security of your artist account.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- SCREEN 4: ARTIST SIGN UP - STEP 2 -->
+        <!-- ========================================== -->
+        <div id="artist-step2" class="screen w-full h-full bg-cream text-gray-900">
+            <!-- Sidebar -->
+            <div class="w-1/3 p-10 border-r border-gray-200 flex flex-col justify-between">
+                <div>
+                    <div class="text-2xl font-bold mb-8 tracking-widest text-brand">Labzo</div>
+                    <h2 class="text-2xl font-bold mb-2">Artist Registration</h2>
+                    <div class="mt-8 space-y-6">
+                        <div class="flex items-center gap-3 opacity-30">
+                            <div class="w-8 h-8 rounded-full bg-gray-400 text-white flex items-center justify-center text-xs font-bold">1</div>
+                            <span class="text-sm font-medium">Your Details</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-brand text-white flex items-center justify-center text-xs font-bold">2</div>
+                            <span class="font-semibold text-sm">Workshop</span>
+                        </div>
+                        <div class="flex items-center gap-3 opacity-30">
+                            <div class="w-8 h-8 rounded-full bg-gray-400 text-white flex items-center justify-center text-xs font-bold">3</div>
+                            <span class="text-sm font-medium">Shop Profile</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Form -->
+            <div class="w-2/3 p-10 flex flex-row gap-12 bg-white overflow-y-auto">
+                <div class="flex-1 space-y-6">
+                    <h3 class="text-lg font-bold mb-4 border-b pb-2">Step 2: Workshop Details</h3>
+                    
+                    <form id="artist-form-2" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Workshop Name</label>
+                            <input type="text" id="workshop-name" required class="input-field">
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold mb-1">City</label>
+                                <input type="text" id="workshop-city" required class="input-field">
+                            </div>
+                             <div>
+                                <label class="block text-xs font-bold mb-1">Country</label>
+                                <input type="text" id="workshop-country" required class="input-field">
+                            </div>
+                        </div>
+
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center mt-4 bg-gray-50">
+                            <div class="w-10 h-10 bg-brand rounded-full flex items-center justify-center mb-2">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            </div>
+                            <p class="text-xs font-semibold text-gray-600">Upload Workshop Images</p>
+                        </div>
+                    </form>
+
+                    <div class="pt-6 flex gap-4">
+                        <button type="button" id="btn-artist-next-2" class="px-8 py-3 bg-gray-900 text-white text-sm font-bold rounded shadow hover:bg-gray-700 transition">Next Step</button>
+                        <button type="button" id="btn-artist-back-2" class="px-8 py-3 border border-gray-300 text-gray-600 text-sm font-bold rounded hover:bg-gray-50 transition">Back</button>
+                    </div>
+                </div>
+
+                <div class="w-1/3">
+                    <div class="bg-gray-900 text-white p-6 rounded text-xs leading-relaxed shadow-lg">
+                        <h4 class="font-bold mb-2 text-brand text-sm">Why we ask this info</h4>
+                        <p class="text-gray-400">Highlighting your local workshop helps buyers understand the origin of the art.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- SCREEN 5: ARTIST SIGN UP - STEP 3 -->
+        <!-- ========================================== -->
+        <div id="artist-step3" class="screen w-full h-full bg-cream text-gray-900">
+            <!-- Sidebar -->
+            <div class="w-1/3 p-10 border-r border-gray-200 flex flex-col justify-between">
+                <div>
+                    <div class="text-2xl font-bold mb-8 tracking-widest text-brand">Labzo</div>
+                    <h2 class="text-2xl font-bold mb-2">Artist Registration</h2>
+                    <div class="mt-8 space-y-6">
+                        <div class="flex items-center gap-3 opacity-30">
+                            <div class="w-8 h-8 rounded-full bg-gray-400 text-white flex items-center justify-center text-xs font-bold">1</div>
+                            <span class="text-sm font-medium">Your Details</span>
+                        </div>
+                        <div class="flex items-center gap-3 opacity-30">
+                            <div class="w-8 h-8 rounded-full bg-gray-400 text-white flex items-center justify-center text-xs font-bold">2</div>
+                            <span class="text-sm font-medium">Workshop</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-brand text-white flex items-center justify-center text-xs font-bold">3</div>
+                            <span class="font-semibold text-sm">Shop Profile</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Form -->
+            <div class="w-2/3 p-10 flex flex-row gap-12 bg-white overflow-y-auto">
+                <div class="flex-1 space-y-6">
+                    <h3 class="text-lg font-bold mb-4 border-b pb-2">Step 3: Showcase Your Work</h3>
+                    
+                    <div class="flex items-center gap-6 mb-6">
+                        <div class="w-20 h-20 bg-gray-100 rounded-full border border-gray-300 flex items-center justify-center overflow-hidden cursor-pointer hover:border-brand">
+                             <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        </div>
+                        <div class="text-xs">
+                            <p class="font-bold text-gray-800">Upload Profile Photo</p>
+                            <p class="text-gray-500">JPG, PNG max 5MB</p>
+                        </div>
+                    </div>
+
+                    <h3 class="text-sm font-bold mb-2">Upload your artwork</h3>
+                    <p class="text-xs text-gray-500 mb-4">Showcase your best pieces to attract buyers.</p>
+
+                    <div class="grid grid-cols-3 gap-4">
+                        <!-- Upload Boxes -->
+                        <div class="aspect-square bg-gray-50 border border-gray-300 rounded flex items-center justify-center cursor-pointer hover:border-brand transition">
+                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        </div>
+                        <div class="aspect-square bg-gray-50 border border-gray-300 rounded flex items-center justify-center cursor-pointer hover:border-brand transition">
+                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        </div>
+                        <div class="aspect-square bg-gray-50 border border-gray-300 rounded flex items-center justify-center cursor-pointer hover:border-brand transition">
+                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        </div>
+                        <div class="aspect-square bg-gray-50 border border-gray-300 rounded flex items-center justify-center cursor-pointer hover:border-brand transition">
+                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        </div>
+                        <div class="aspect-square bg-gray-50 border border-gray-300 rounded flex items-center justify-center cursor-pointer hover:border-brand transition">
+                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        </div>
+                        <div class="aspect-square bg-gray-50 border border-gray-300 rounded flex items-center justify-center cursor-pointer hover:border-brand transition">
+                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 flex gap-4">
+                        <button type="button" id="btn-artist-submit" class="px-8 py-3 bg-gray-900 text-white text-sm font-bold rounded shadow hover:bg-gray-700 transition">Complete Registration</button>
+                        <button type="button" id="btn-artist-back-3" class="px-8 py-3 border border-gray-300 text-gray-600 text-sm font-bold rounded hover:bg-gray-50 transition">Back</button>
+                    </div>
+                </div>
+
+                <div class="w-1/3">
+                    <div class="bg-gray-900 text-white p-6 rounded text-xs leading-relaxed shadow-lg">
+                        <h4 class="font-bold mb-2 text-brand text-sm">Why we ask this info</h4>
+                        <p class="text-gray-400">High-quality photos attract more buyers. Make sure your artwork is well-lit and clearly visible.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- SCREEN 6: DASHBOARD (Post-Login) -->
+        <!-- ========================================== -->
+        <div id="dashboard-screen" class="screen w-full h-full bg-cream flex-col items-center justify-center text-center p-12">
+            <div class="w-20 h-20 bg-brand rounded-full flex items-center justify-center mb-6">
+                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <h1 class="text-4xl font-bold mb-4 text-gray-800">Welcome to Labzo</h1>
+            <p id="welcome-message" class="text-gray-600 mb-8 text-lg">You have successfully logged in.</p>
+            
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 max-w-md w-full mb-8">
+                <p class="text-sm text-gray-500 mb-2">User Session Data (Simulated Backend):</p>
+                <div id="user-data-display" class="text-left text-xs font-mono bg-gray-50 p-4 rounded text-gray-700">
+                    <!-- Data will be injected here via JS -->
+                </div>
+            </div>
+
+            <button id="btn-logout" class="px-8 py-3 bg-gray-900 text-white text-sm font-bold rounded shadow hover:bg-gray-700 transition">Log Out</button>
+        </div>
+
+    </div>
+
+    <!-- Link to External JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
