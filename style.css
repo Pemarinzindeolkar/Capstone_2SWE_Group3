@@ -1,28 +1,24 @@
-/* Custom Font Setup */
 body { 
     font-family: 'Inter', sans-serif; 
 }
 
-/* Professional Palette */
 .bg-brand { 
-    background-color: #8C7A6B; /* Sophisticated Light Brown/Taupe */
+    background-color: #8C7A6B;
 }
 
 .bg-cream { 
-    background-color: #F9F8F6; /* Very light warm grey */
+    background-color: #F9F8F6;
 }
 
 .text-brand { 
     color: #8C7A6B; 
 }
 
-/* Hide Scrollbar for cleaner look */
 ::-webkit-scrollbar { 
     width: 0px; 
     background: transparent; 
 }
 
-/* Screen Transitions */
 .screen { 
     display: none; 
     animation: fadeIn 0.4s ease-out; 
@@ -37,7 +33,6 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Input Styling */
 .input-field {
     width: 100%;
     border: 1px solid #D1D5DB;
@@ -58,22 +53,22 @@ body {
     color: #9CA3AF;
 }
 
-/* --- LOGO STYLES (CENTERED, ORIGINAL IMAGE) --- */
+/* --- LOGO STYLES (UPDATED FOR LIGHT BACKGROUND) --- */
 
 .logo-img-large {
-    width: 220px;
+    width: 140px; /* Slightly smaller to fit cleanly */
     height: auto;
     object-fit: contain;
     display: block;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
 }
 
 .slogan-text-small {
-    color: #F5F2EB;
-    font-size: 0.75rem;
+    color: #8C7A6B; /* Changed to brand color for visibility on white */
+    font-size: 0.7rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    font-weight: 600;
-    opacity: 0.85;
-    text-align: center; /* Centered to match the logo */
+    font-weight: 700;
+    opacity: 0.9;
+    text-align: left;
 }
