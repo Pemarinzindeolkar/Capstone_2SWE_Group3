@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Labzo — Order Pending Verification</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="#" class="logo">Lab<span>zo</span></a>
+      <nav class="nav">
+        <a href="#" class="nav-link">Home</a>
+        <a href="#" class="nav-link">Shop</a>
+        <a href="#" class="nav-link">Artists</a>
+        <a href="#" class="nav-link">Collections</a>
+      </nav>
+      <div class="header-actions">
+        <a href="#" class="action-link">🔍</a>
+        <a href="#" class="action-link">♡</a>
+        <a href="#" class="action-link">🛍</a>
+        <span class="page-badge">Order · Pending Verification</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="pending-main">
+
+    <!-- STATUS CARD -->
+    <div class="status-card">
+      <div class="status-card-top">
+        <div>
+          <h1 class="order-ref">Order #LBZ-20240892</h1>
+          <p class="order-sub">Placed on Sunday, 20 September 2026 · Payment slip submitted</p>
+        </div>
+        <span class="pending-pill">⏳ Pending Verification</span>
+      </div>
+
+      <!-- TIMELINE -->
+      <div class="timeline">
+        <div class="tl-item done">
+          <div class="tl-dot">1</div>
+          <span class="tl-label">Order Placed</span>
+          <span class="tl-sub">Completed</span>
+        </div>
+        <div class="tl-line done"></div>
+        <div class="tl-item done">
+          <div class="tl-dot">2</div>
+          <span class="tl-label">Slip Submitted</span>
+          <span class="tl-sub">Completed</span>
+        </div>
+        <div class="tl-line"></div>
+        <div class="tl-item active">
+          <div class="tl-dot">3</div>
+          <span class="tl-label">Under Review</span>
+          <span class="tl-sub">In progress</span>
+        </div>
+        <div class="tl-line"></div>
+        <div class="tl-item">
+          <div class="tl-dot">4</div>
+          <span class="tl-label">Confirmed</span>
+          <span class="tl-sub">Pending</span>
+        </div>
+        <div class="tl-line"></div>
+        <div class="tl-item">
+          <div class="tl-dot">5</div>
+          <span class="tl-label">Delivered</span>
+          <span class="tl-sub">Pending</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEXT STEPS CARD -->
+    <div class="info-card">
+      <h2 class="info-heading">What happens next</h2>
+      <div class="next-steps">
+        <div class="next-item">
+          <span class="next-num">1</span>
+          <span class="next-text">Our team will verify your bank transfer slip within 1–2 business days.</span>
+        </div>
+        <div class="step-divider"></div>
+        <div class="next-item">
+          <span class="next-num">2</span>
+          <span class="next-text">You will receive an email notification once your payment is confirmed.</span>
+        </div>
+        <div class="step-divider"></div>
+        <div class="next-item">
+          <span class="next-num">3</span>
+          <span class="next-text">The artisan will be notified and begin preparing your order for dispatch.</span>
+        </div>
+        <div class="step-divider"></div>
+        <div class="next-item">
+          <span class="next-num">4</span>
+          <span class="next-text">If verification fails, we will contact you by email with instructions to resubmit.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORDER ITEMS CARD -->
+    <div class="info-card">
+      <h2 class="info-heading">Your items</h2>
+      <div class="order-item">
+        <div class="order-thumb" style="background:#E8DDD0;"></div>
+        <div class="order-item-info">
+          <p class="order-item-name">Hand-woven Kishuthara</p>
+          <p class="order-item-sub">By Karma Wangchuk · Qty 1</p>
+        </div>
+        <span class="order-item-price">Nu. 2,800</span>
+      </div>
+      <div class="item-divider"></div>
+      <div class="order-item">
+        <div class="order-thumb" style="background:#D0DDE8;"></div>
+        <div class="order-item-info">
+          <p class="order-item-name">Carved Wooden Prayer Wheel</p>
+          <p class="order-item-sub">By Tshering Dorji · Qty 1</p>
+        </div>
+        <span class="order-item-price">Nu. 1,800</span>
+      </div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="pending-actions">
+      <a href="payment.html" class="btn-ghost">← Resubmit Slip</a>
+      <a href="#" class="btn-solid">Continue Shopping</a>
+    </div>
+
+  </main>
+
+  <script src="payment.js"></script>
+</body>
+</html>

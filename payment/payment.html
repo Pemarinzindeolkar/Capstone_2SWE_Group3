@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Labzo — Checkout · Payment</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="#" class="logo">Lab<span>zo</span></a>
+      <nav class="nav">
+        <a href="#" class="nav-link">Home</a>
+        <a href="#" class="nav-link active">Shop</a>
+        <a href="#" class="nav-link">Artists</a>
+        <a href="#" class="nav-link">Collections</a>
+      </nav>
+      <div class="header-actions">
+        <a href="#" class="action-link">Search</a>
+        <a href="#" class="action-link">♡</a>
+        <a href="#" class="action-link">Bag</a>
+        <span class="page-badge">Checkout · Payment</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- CHECKOUT STEPS -->
+  <div class="steps-bar">
+    <div class="step done">
+      <div class="step-dot">1</div>
+      <span class="step-label">Cart</span>
+    </div>
+    <div class="step-line done"></div>
+    <div class="step active">
+      <div class="step-dot">2</div>
+      <span class="step-label">Payment</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step">
+      <div class="step-dot">3</div>
+      <span class="step-label">Confirmation</span>
+    </div>
+  </div>
+
+  <!-- MAIN LAYOUT -->
+  <main class="main-layout">
+
+    <!-- LEFT CONTENT -->
+    <section class="content">
+      <p class="eyebrow">Step 2 of 3</p>
+      <h1 class="page-heading">Complete your payment</h1>
+      <p class="subtext">
+        Labzo uses manual bank transfer verification to process payments. Transfer the exact amount to the account below, then upload your payment slip for confirmation. Your order will be processed within 1–2 business days.
+      </p>
+
+      <!-- BANK DETAILS CARD -->
+      <div class="bank-card">
+        <div class="bank-card-header">
+          <h2 class="bank-card-title">Bank Transfer Details</h2>
+          <span class="bank-chip">Bank of Bhutan (BOB)</span>
+        </div>
+        <div class="bank-divider"></div>
+
+        <div class="bank-row">
+          <span class="bank-key">Account Name</span>
+          <span class="bank-val">Labzo Crafts Escrow</span>
+        </div>
+        <div class="bank-divider"></div>
+
+        <div class="bank-row">
+          <span class="bank-key">Bank</span>
+          <span class="bank-val">Bank of Bhutan</span>
+        </div>
+        <div class="bank-divider"></div>
+
+        <div class="bank-row">
+          <span class="bank-key">Account Number</span>
+          <span class="bank-val copyable" id="acc-num">101-102-103456</span>
+          <button class="copy-chip" onclick="copyText('acc-num', this)">Copy</button>
+        </div>
+        <div class="bank-divider"></div>
+
+        <div class="bank-row">
+          <span class="bank-key">Reference Code</span>
+          <span class="bank-val copyable" id="ref-code">LBZ-20240892</span>
+          <button class="copy-chip" onclick="copyText('ref-code', this)">Copy</button>
+        </div>
+        <div class="bank-divider"></div>
+
+        <div class="bank-row">
+          <span class="bank-key">Amount Due</span>
+          <span class="bank-val amount" id="amount-due">Nu. 4,850</span>
+          <button class="copy-chip" onclick="copyText('amount-due', this)">Copy</button>
+        </div>
+      </div>
+
+      <!-- WARNING -->
+      <div class="warning-notice">
+        ⚠️ &nbsp;Always include your Reference Code in the transfer remarks so we can match your payment automatically.
+      </div>
+
+      <!-- UPLOAD SECTION -->
+      <h2 class="upload-heading">Upload payment slip</h2>
+
+      <div class="dropzone" id="dropzone">
+        <div class="upload-icon">↑</div>
+        <p class="drop-title">Drop your slip here, or <label for="file-input" class="browse-link">browse files</label></p>
+        <p class="drop-sub">Accepts JPG, PNG, or PDF · Max 5 MB · Screenshot or scanned copy accepted</p>
+        <input type="file" id="file-input" accept=".jpg,.jpeg,.png,.pdf" hidden />
+      </div>
+
+      <!-- SLIP PREVIEW (hidden until file selected) -->
+      <div class="slip-preview" id="slip-preview" style="display:none;">
+        <div class="slip-thumb" id="slip-thumb"></div>
+        <div class="slip-info">
+          <p class="slip-name" id="slip-name">payment_slip.jpg</p>
+          <p class="slip-meta" id="slip-meta">JPG · 1.2 MB</p>
+        </div>
+        <span class="slip-status">Ready</span>
+        <button class="slip-remove" onclick="removeFile()">✕</button>
+      </div>
+
+      <!-- SUBMIT -->
+      <button class="submit-btn" id="submit-btn" onclick="submitPayment()">
+        Confirm Payment &amp; Submit Slip
+      </button>
+    </section>
+
+    <!-- RIGHT SIDEBAR -->
+    <aside class="sidebar">
+      <h2 class="sidebar-title">Order Summary</h2>
+
+      <div class="sum-divider"></div>
+      <div class="sum-row">
+        <span class="sum-label">2 items</span>
+        <span class="sum-val">Nu. 4,600</span>
+      </div>
+      <div class="sum-divider"></div>
+      <div class="sum-row">
+        <span class="sum-label">Delivery estimate</span>
+        <span class="sum-val">Nu. 150</span>
+      </div>
+      <div class="sum-divider"></div>
+      <div class="sum-row">
+        <span class="sum-label">Discount</span>
+        <span class="sum-val">— Nu. 0</span>
+      </div>
+      <div class="sum-divider"></div>
+      <div class="sum-row">
+        <span class="sum-label">Tax</span>
+        <span class="sum-val">Nu. 100</span>
+      </div>
+      <div class="sum-divider total-divider"></div>
+      <div class="sum-row total-row">
+        <span class="sum-label">Total</span>
+        <span class="sum-val">Nu. 4,850</span>
+      </div>
+
+      <div class="sidebar-notice">
+        <p>Your order will be held for <strong>24 hours</strong>. If payment is not received by then, the order will be cancelled automatically.</p>
+        <p style="margin-top: 8px;">Funds are released to the artisan only after you confirm delivery.</p>
+      </div>
+    </aside>
+
+  </main>
+
+  <script src="payment.js"></script>
+</body>
+</html>
