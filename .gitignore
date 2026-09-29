@@ -1,5 +1,26 @@
-.DS_Store
+# Node
 node_modules/
-*.log
+backend/node_modules/
+
+# Environment
 .env
-.vscode/
+backend/.env
+
+# User uploads (don't commit user images)
+backend/public/uploads/
+
+# SQLite files (if any)
+*.db
+*.sqlite
+
+# Backups (created during development)
+*.bak
+*.bak*
+backend/public/*.bak*
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
