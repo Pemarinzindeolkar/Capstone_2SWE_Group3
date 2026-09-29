@@ -18,6 +18,21 @@ function showScreen(screenId) {
         activeScreen.style.display = 'flex';
     }
 }
+// --- USER STORAGE HELPERS ---
+function getUsers() {
+    return JSON.parse(localStorage.getItem('labzo_users') || '[]');
+}
+
+function saveUser(user) {
+    const users = getUsers();
+    users.push(user);
+    localStorage.setItem('labzo_users', JSON.stringify(users));
+}
+
+function findUser(email, password) {
+    return getUsers().find(u => u.email === email && u.password === password);
+}
+
 
 // --- 1. NAVIGATION LINKS ---
 
@@ -40,28 +55,28 @@ document.getElementById('btn-artist-back-3').addEventListener('click', () => sho
 // --- 2. LOGIN LOGIC ---
 
 document.getElementById('login-form').addEventListener('submit', function(e) {
-    e.preventDefault(); // Stop page reload
+    e.preventDefault();
     
-    const email = document.getElementById('login-email').value;
+    const email = document.getElementById('login-email').value.trim();
     const password = document.getElementById('login-password').value;
 
-    // Simulate Backend Check
-    if(email && password) {
-        console.log("Backend: Attempting login for", email);
-        
-        // Simulate successful response
-        const userName = email.split('@')[0]; 
-        document.getElementById('welcome-message').innerText = `Hello, ${userName}! You are logged in.`;
-        
-        // Display mock data on dashboard
-        document.getElementById('user-data-display').innerHTML = `
-            <p><strong>Status:</strong> Authenticated</p>
-            <p><strong>User:</strong> ${email}</p>
-            <p><strong>Token:</strong> sim_${Math.random().toString(36).substr(2)}</p>
-        `;
-
-        showScreen('dashboard-screen');
+    const user = findUser(email, password);
+    if (!user) {
+        alert("Invalid email or password.");
+        return;
     }
+
+    const userName = user.name || email.split('@')[0];
+    document.getElementById('welcome-message').innerText = `Hello, ${userName}! You are logged in.`;
+    
+    document.getElementById('user-data-display').innerHTML = `
+        <p><strong>Status:</strong> Authenticated</p>
+        <p><strong>User:</strong> ${email}</p>
+        <p><strong>Role:</strong> ${user.role || 'buyer'}</p>
+        <p><strong>Token:</strong> sim_${Math.random().toString(36).substr(2)}</p>
+    `;
+
+    showScreen('dashboard-screen');
 });
 
 
@@ -97,6 +112,29 @@ document.getElementById('btn-artist-next-1').addEventListener('click', function(
 
     console.log("Backend: Saving Artist Step 1 Data...", { name, email, phone });
     showScreen('artist-step2');
+});document.getElementById('btn-artist-next-1').addEventListener('click', function() {
+    const name = document.getElementById('artist-name').value.trim();
+    const email = document.getElementById('artist-email').value.trim();
+    const pass = document.getElementById('artist-pass').value;
+    const phone = document.getElementById('artist-phone').value.trim();
+
+    if(!name || !email || !pass || !phone) {
+        alert("Please fill in all fields before proceeding.");
+        return;
+    }
+
+    if (!document.getElementById('artist-terms').checked) {
+        alert("Please agree to the Terms & Conditions.");
+        return;
+    }
+
+    if (getUsers().find(u => u.email === email)) {
+        alert("This email is already registered.");
+        return;
+    }
+
+    console.log("Backend: Saving Artist Step 1 Data...", { name, email, phone });
+    showScreen('artist-step2');
 });
 
 // Step 2: Workshop Details
@@ -116,6 +154,18 @@ document.getElementById('btn-artist-next-2').addEventListener('click', function(
 
 // Step 3: Final Submission
 document.getElementById('btn-artist-submit').addEventListener('click', function() {
+        const name = document.getElementById('artist-name').value.trim();
+    const email = document.getElementById('artist-email').value.trim();
+    const pass = document.getElementById('artist-pass').value;
+    const phone = document.getElementById('artist-phone').value.trim();
+    const workshop = document.getElementById('workshop-name').value.trim();
+    const city = document.getElementById('workshop-city').value.trim();
+    const country = document.getElementById('workshop-country').value.trim();
+
+    saveUser({
+        name, email, password: pass, phone,
+        role: 'artist', workshop, city, country
+    });
     console.log("Backend: Artist registration complete. Creating profile...");
     
     document.getElementById('welcome-message').innerText = "Artist Account Created Successfully!";

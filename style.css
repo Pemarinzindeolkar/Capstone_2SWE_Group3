@@ -72,3 +72,8 @@ body {
     opacity: 0.9;
     text-align: left;
 }
+.error-message {
+    color: #DC2626;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
