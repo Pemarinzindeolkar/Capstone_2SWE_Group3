@@ -52,8 +52,12 @@ app.get(/^\/(?!api).*/, (req, res) => {
 // 404 for unknown API routes
 app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
 
-app.listen(PORT, () => {
-    console.log(`Labzo running on http://localhost:${PORT}`);
-    console.log(`Frontend: http://localhost:${PORT}/`);
-    console.log(`API:      http://localhost:${PORT}/api/health`);
-});
+require('./migrations')()
+    .catch(err => console.error('❌ Migration failed:', err.message))
+    .finally(() => {
+        app.listen(PORT, () => {
+            console.log(`Labzo running on http://localhost:${PORT}`);
+            console.log(`Frontend: http://localhost:${PORT}/`);
+            console.log(`API:      http://localhost:${PORT}/api/health`);
+        });
+    });
