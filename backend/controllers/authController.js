@@ -33,12 +33,26 @@ async function register(req, res) {
 
         const hash = await hashPassword(password);
 
-        const result = await pool.query(
-            `INSERT INTO ${table} (name, email, password_hash)
-             VALUES ($1, $2, $3)
-             RETURNING ${idColumn} AS id, name, email, status, created_at`,
-            [name, email, hash]
-        );
+        let result;
+        if (role === 'artisan') {
+            const { phone, workshop_name, city, country } = req.body;
+            if (!phone || !workshop_name || !city || !country) {
+                return res.status(400).json({ error: 'Missing artist details' });
+            }
+            result = await pool.query(
+                `INSERT INTO artisan (name, email, password_hash, phone, workshop_name, city, country)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7)
+                 RETURNING artisan_id AS id, name, email, phone, workshop_name, city, country, status, created_at`,
+                [name, email, hash, phone, workshop_name, city, country]
+            );
+        } else {
+            result = await pool.query(
+                `INSERT INTO buyer (name, email, password_hash)
+                 VALUES ($1, $2, $3)
+                 RETURNING buyer_id AS id, name, email, status, created_at`,
+                [name, email, hash]
+            );
+        }
 
         const user = result.rows[0];
 

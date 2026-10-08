@@ -7,7 +7,7 @@ async function listArtisans(req, res) {
         const result = await pool.query(`
             SELECT
                 artisan_id, name, email, technique, craft_description,
-                status, created_at
+                workshop_name, city, country, status, created_at
             FROM artisan
             ORDER BY created_at DESC
         `);
@@ -24,7 +24,7 @@ async function getArtisan(req, res) {
     try {
         const artisanRes = await pool.query(`
             SELECT artisan_id, name, email, technique, craft_description,
-                   status, created_at
+                   workshop_name, city, country, status, created_at
             FROM artisan WHERE artisan_id = $1
         `, [id]);
 

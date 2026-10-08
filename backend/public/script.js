@@ -105,9 +105,55 @@ window.addEventListener('load', () => {
         } catch (err) { toast(err.message, 'error'); }
     });
 
+    // Artist signup — collect data across 3 steps, register at the end
+    const artistDraft = { name: '', email: '', password: '', phone: '', workshop: '', city: '', country: '' };
+
+    bind('btn-artist-next-1', 'click', () => {
+        const name = document.getElementById('artist-name').value.trim();
+        const email = document.getElementById('artist-email').value.trim();
+        const password = document.getElementById('artist-pass').value;
+        const phone = document.getElementById('artist-phone').value.trim();
+        if (!name || !email || !password || !phone) return toast('Please fill in all fields', 'error');
+        Object.assign(artistDraft, { name, email, password, phone });
+        showScreen('artist-step2');
+    });
+
+    bind('btn-artist-next-2', 'click', () => {
+        const workshop = document.getElementById('workshop-name').value.trim();
+        const city = document.getElementById('workshop-city').value.trim();
+        const country = document.getElementById('workshop-country').value.trim();
+        if (!workshop || !city || !country) return toast('Please fill in all fields', 'error');
+        Object.assign(artistDraft, { workshop, city, country });
+        showScreen('artist-step3');
+    });
+
+    bind('btn-artist-submit', 'click', async () => {
+        if (!artistDraft.name || !artistDraft.email || !artistDraft.password) {
+            toast('Please complete step 1 first', 'error');
+            return showScreen('artist-step1');
+        }
+        try {
+            const r = await API.post('/api/auth/register', {
+                name: artistDraft.name,
+                email: artistDraft.email,
+                password: artistDraft.password,
+                phone: artistDraft.phone,
+                workshop_name: artistDraft.workshop,
+                city: artistDraft.city,
+                country: artistDraft.country,
+                role: 'artisan',
+            });
+            API.saveSession(r.user, r.token);
+            toast('Artist account created!', 'success');
+            loadDashboard();
+        } catch (err) { toast(err.message || 'Artist registration failed', 'error'); }
+    });
+
     // Logout
     bind('btn-logout', 'click', () => {
         API.clearSession();
+        ['login-form', 'signup-form', 'artist-form-1', 'artist-form-2']
+            .forEach(id => document.getElementById(id)?.reset());
         toast('Logged out', 'info');
         showScreen('login-screen');
     });
@@ -689,7 +735,8 @@ async function showArtists() {
                     </div>
                     <div>
                         <h3 class="font-bold text-gray-800">${a.name}</h3>
-                        <p class="text-xs text-gray-500">${a.technique || 'Artisan'}</p>
+                        <p class="text-xs text-gray-500">${a.workshop_name || a.technique || 'Artisan'}</p>
+                        ${a.city ? `<p class="text-xs text-gray-400">${[a.city, a.country].filter(Boolean).join(', ')}</p>` : ''}
                     </div>
                 </div>
                 <p class="text-sm text-gray-600 line-clamp-3">${a.craft_description || 'Artisan workshop.'}</p>
@@ -735,7 +782,8 @@ async function openArtist(artisanId) {
                         ${initial}
                     </div>
                     <h1 class="text-3xl font-bold text-gray-800 mb-1">${a.name}</h1>
-                    <p class="text-sm text-gray-500 mb-1">${a.technique || 'Artisan'}</p>
+                    <p class="text-sm text-gray-500 mb-1">${a.workshop_name || a.technique || 'Artisan'}</p>
+                    ${a.city ? `<p class="text-xs text-gray-500 mb-1">📍 ${[a.city, a.country].filter(Boolean).join(', ')}</p>` : ''}
                     <p class="text-xs text-gray-400 mb-6">Workshop since ${new Date(a.created_at).getFullYear()}</p>
 
                     <p class="text-xs uppercase tracking-widest text-brand font-semibold mb-2">About the Artisan</p>
