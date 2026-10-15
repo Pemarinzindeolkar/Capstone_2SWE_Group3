@@ -1,2 +1,2 @@
 # Capstone_2SWE_Group3
-yo
+Second year, Autumn semester, 2026
