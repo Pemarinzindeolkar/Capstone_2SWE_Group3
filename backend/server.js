@@ -57,7 +57,8 @@ app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
 // Apply schema changes, then start listening (start anyway if the DB is down,
 // so /api/health still answers and the error is visible in the logs)
 require('./migrate')()
-    .catch(err => console.error('❌ Migration failed:', err.message))
+    .then(() => require('./utils/seedAdmin')())
+    .catch(err => console.error('❌ Startup DB setup failed:', err.message))
     .finally(() => {
         app.listen(PORT, () => {
             console.log(`Labzo running on http://localhost:${PORT}`);
