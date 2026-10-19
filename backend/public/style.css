@@ -77,3 +77,31 @@ body {
     opacity: 0.85;
     text-align: center; /* Centered to match the logo */
 }
+
+/* --- Additions --- */
+
+.text-brand-light { color: #c9a27e; }
+.border-brand { border-color: #90613a; }
+.accent-brand { accent-color: #90613a; }
+
+/* Thin scrollbar inside screens (the hidden one above made long pages hard to scroll on desktop) */
+.screen::-webkit-scrollbar { width: 6px; }
+.screen::-webkit-scrollbar-thumb { background: #d6cfc6; border-radius: 3px; }
+
+/* Admin tabs */
+.admin-tab { border-color: transparent; color: #6B7280; }
+.admin-tab.active { border-color: #90613a; color: #1F2937; }
+
+/* Status pills */
+.pill { display: inline-block; font-size: 0.7rem; font-weight: 600; padding: 0.15rem 0.6rem; border-radius: 9999px; text-transform: capitalize; }
+.pill-pending   { background: #FEF3C7; color: #92400E; }
+.pill-paid, .pill-verified, .pill-delivered { background: #D1FAE5; color: #065F46; }
+.pill-shipped   { background: #DBEAFE; color: #1E40AF; }
+.pill-approved  { background: #E0E7FF; color: #3730A3; }
+.pill-cancelled, .pill-rejected { background: #FEE2E2; color: #991B1B; }
+.pill-sold_out  { background: #E5E7EB; color: #374151; }
+.pill-available { background: #D1FAE5; color: #065F46; }
+
+/* Mobile nav: let links scroll sideways instead of wrapping */
+.nav-scroll { scrollbar-width: none; }
+.nav-scroll::-webkit-scrollbar { display: none; }

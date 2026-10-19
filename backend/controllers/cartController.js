@@ -28,7 +28,7 @@ async function getCart(req, res) {
         const items = await pool.query(`
             SELECT
                 ci.cart_item_id, ci.quantity, ci.price,
-                p.product_id, p.title, p.image_url, p.category,
+                p.product_id, p.title, p.image_url, p.category, p.stock,
                 a.artisan_id, a.name AS artisan_name
             FROM cart_item ci
             JOIN product p ON p.product_id = ci.product_id
@@ -67,14 +67,28 @@ async function addToCart(req, res) {
     try {
         const cartId = await getOrCreateCart(buyerId);
 
-        // Get product price + ensure it exists and is available
+        // Get product price + ensure it exists, is available and in stock
         const prod = await pool.query(
-            "SELECT product_id, price, status FROM product WHERE product_id = $1",
+            "SELECT product_id, price, status, stock FROM product WHERE product_id = $1",
             [product_id]
         );
         if (prod.rowCount === 0) return res.status(404).json({ error: 'Product not found' });
         if (prod.rows[0].status !== 'available') {
             return res.status(400).json({ error: 'Product not available' });
+        }
+
+        const stock = prod.rows[0].stock;
+        if (stock <= 0) return res.status(400).json({ error: 'Out of stock' });
+
+        const existing = await pool.query(
+            'SELECT quantity FROM cart_item WHERE cart_id = $1 AND product_id = $2',
+            [cartId, product_id]
+        );
+        const inCart = existing.rowCount ? existing.rows[0].quantity : 0;
+        if (inCart + qty > stock) {
+            return res.status(400).json({
+                error: stock === 1 ? 'Only 1 in stock — already in your bag' : `Only ${stock} in stock`,
+            });
         }
 
         const price = prod.rows[0].price;
@@ -110,6 +124,18 @@ async function updateCartItem(req, res) {
 
     try {
         const cartId = await getOrCreateCart(buyerId);
+
+        const stockRes = await pool.query(`
+            SELECT p.stock FROM cart_item ci
+            JOIN product p ON p.product_id = ci.product_id
+            WHERE ci.cart_item_id = $1 AND ci.cart_id = $2
+        `, [id, cartId]);
+        if (stockRes.rowCount === 0) return res.status(404).json({ error: 'Item not found' });
+        const stock = stockRes.rows[0].stock;
+        if (qty > stock) {
+            return res.status(400).json({ error: `Only ${stock} in stock` });
+        }
+
         const result = await pool.query(`
             UPDATE cart_item SET quantity = $1
             WHERE cart_item_id = $2 AND cart_id = $3
