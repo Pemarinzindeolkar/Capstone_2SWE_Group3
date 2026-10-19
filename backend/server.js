@@ -40,6 +40,8 @@ app.use('/api/cart',     require('./routes/cart'));
 app.use('/api/wishlist', require('./routes/wishlist'));
 app.use('/api/orders',   require('./routes/orders'));
 app.use('/api/upload',   require('./routes/upload'));
+app.use('/api/admin',    require('./routes/admin'));
+app.use('/api/images',   require('./routes/images'));
 
 // ==========================================
 // FALLBACK: any non-API route → serve index.html
@@ -52,7 +54,9 @@ app.get(/^\/(?!api).*/, (req, res) => {
 // 404 for unknown API routes
 app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
 
-require('./migrations')()
+// Apply schema changes, then start listening (start anyway if the DB is down,
+// so /api/health still answers and the error is visible in the logs)
+require('./migrate')()
     .catch(err => console.error('❌ Migration failed:', err.message))
     .finally(() => {
         app.listen(PORT, () => {

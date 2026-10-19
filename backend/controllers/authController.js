@@ -3,12 +3,19 @@ const pool = require('../database');
 const { hashPassword, comparePassword } = require('../utils/password');
 const { signToken } = require('../utils/jwt');
 
+const ROLE_TABLES = {
+    buyer:   { table: 'buyer',   idColumn: 'buyer_id' },
+    artisan: { table: 'artisan', idColumn: 'artisan_id' },
+    admin:   { table: 'admin',   idColumn: 'admin_id' },
+};
+
 // ---------------------------------------------------------------
 // POST /api/auth/register
 // body: { name, email, password, role }  role = "buyer" | "artisan"
+// artisans may also send: { phone, technique, craft_description, workshop_name, location }
 // ---------------------------------------------------------------
 async function register(req, res) {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, phone, technique, craft_description, workshop_name, location } = req.body;
 
     if (!name || !email || !password || !role) {
         return res.status(400).json({ error: 'Missing required fields' });
@@ -18,41 +25,38 @@ async function register(req, res) {
         return res.status(400).json({ error: 'Invalid role' });
     }
 
-    try {
-        const table = role === 'buyer' ? 'buyer' : 'artisan';
-        const idColumn = role === 'buyer' ? 'buyer_id' : 'artisan_id';
+    if (password.length < 6) {
+        return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
 
-        // Check if email already exists in this table
-        const exists = await pool.query(
-            `SELECT ${idColumn} FROM ${table} WHERE email = $1`,
-            [email]
-        );
+    try {
+        // Emails are unique across ALL account types, so login can auto-detect the role
+        const exists = await pool.query(`
+            SELECT 1 FROM buyer WHERE email = $1
+            UNION ALL SELECT 1 FROM artisan WHERE email = $1
+            UNION ALL SELECT 1 FROM admin WHERE email = $1
+        `, [email]);
         if (exists.rowCount > 0) {
             return res.status(409).json({ error: 'Email already registered' });
         }
 
         const hash = await hashPassword(password);
 
-        let result;
-        if (role === 'artisan') {
-            const { phone, workshop_name, city, country } = req.body;
-            if (!phone || !workshop_name || !city || !country) {
-                return res.status(400).json({ error: 'Missing artist details' });
-            }
-            result = await pool.query(
-                `INSERT INTO artisan (name, email, password_hash, phone, workshop_name, city, country)
-                 VALUES ($1, $2, $3, $4, $5, $6, $7)
-                 RETURNING artisan_id AS id, name, email, phone, workshop_name, city, country, status, created_at`,
-                [name, email, hash, phone, workshop_name, city, country]
-            );
-        } else {
-            result = await pool.query(
+        const result = role === 'buyer'
+            ? await pool.query(
                 `INSERT INTO buyer (name, email, password_hash)
                  VALUES ($1, $2, $3)
-                 RETURNING buyer_id AS id, name, email, status, created_at`,
+                 RETURNING buyer_id AS id, name, email, photo_url, status, created_at`,
                 [name, email, hash]
+            )
+            : await pool.query(
+                `INSERT INTO artisan (name, email, password_hash, phone, technique, craft_description, workshop_name, location)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                 RETURNING artisan_id AS id, name, email, phone, technique, craft_description,
+                           workshop_name, location, photo_url, status, created_at`,
+                [name, email, hash, phone || null, technique || null, craft_description || null,
+                 workshop_name || null, location || null]
             );
-        }
 
         const user = result.rows[0];
 
@@ -80,37 +84,37 @@ async function register(req, res) {
 async function login(req, res) {
     const { email, password, role } = req.body;
 
-    if (!email || !password || !role) {
+    if (!email || !password) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
+    // If no role is given, check every account type in turn
+    const roles = role ? [role] : ['buyer', 'artisan', 'admin'];
+    if (!roles.every(r => ROLE_TABLES[r])) {
+        return res.status(400).json({ error: 'Invalid role' });
+    }
+
     try {
-        let table, idColumn;
-        if (role === 'buyer') { table = 'buyer'; idColumn = 'buyer_id'; }
-        else if (role === 'artisan') { table = 'artisan'; idColumn = 'artisan_id'; }
-        else if (role === 'admin') { table = 'admin'; idColumn = 'admin_id'; }
-        else return res.status(400).json({ error: 'Invalid role' });
+        for (const r of roles) {
+            const { table, idColumn } = ROLE_TABLES[r];
+            const statusCol = r === 'admin' ? `'active' AS status` : 'status';
+            const result = await pool.query(
+                `SELECT ${idColumn} AS id, name, email, password_hash, ${statusCol}
+                 FROM ${table} WHERE email = $1`,
+                [email]
+            );
+            if (result.rowCount === 0) continue;
 
-        const result = await pool.query(
-            `SELECT ${idColumn} AS id, name, email, password_hash, status
-             FROM ${table} WHERE email = $1`,
-            [email]
-        );
+            const user = result.rows[0];
+            const ok = await comparePassword(password, user.password_hash);
+            if (!ok) continue;
 
-        if (result.rowCount === 0) {
-            return res.status(401).json({ error: 'Invalid credentials' });
+            delete user.password_hash;
+            const token = signToken({ id: user.id, role: r, email: user.email });
+            return res.json({ user: { ...user, role: r }, token });
         }
 
-        const user = result.rows[0];
-        const ok = await comparePassword(password, user.password_hash);
-        if (!ok) {
-            return res.status(401).json({ error: 'Invalid credentials' });
-        }
-
-        delete user.password_hash;
-
-        const token = signToken({ id: user.id, role, email: user.email });
-        res.json({ user: { ...user, role }, token });
+        res.status(401).json({ error: 'Invalid email or password' });
     } catch (err) {
         console.error('login error:', err);
         res.status(500).json({ error: 'Server error' });
@@ -122,16 +126,18 @@ async function login(req, res) {
 // ---------------------------------------------------------------
 async function me(req, res) {
     const { id, role } = req.user;
+    const map = ROLE_TABLES[role];
+    if (!map) return res.status(400).json({ error: 'Invalid role' });
 
-    let table, idColumn;
-    if (role === 'buyer') { table = 'buyer'; idColumn = 'buyer_id'; }
-    else if (role === 'artisan') { table = 'artisan'; idColumn = 'artisan_id'; }
-    else if (role === 'admin') { table = 'admin'; idColumn = 'admin_id'; }
+    const cols = {
+        buyer: 'name, email, photo_url, status, created_at',
+        artisan: 'name, email, phone, technique, craft_description, workshop_name, location, photo_url, status, created_at',
+        admin: "name, email, 'active' AS status, created_at",
+    }[role];
 
     try {
         const result = await pool.query(
-            `SELECT ${idColumn} AS id, name, email, status, created_at
-             FROM ${table} WHERE ${idColumn} = $1`,
+            `SELECT ${map.idColumn} AS id, ${cols} FROM ${map.table} WHERE ${map.idColumn} = $1`,
             [id]
         );
         if (result.rowCount === 0) return res.status(404).json({ error: 'User not found' });
@@ -142,4 +148,75 @@ async function me(req, res) {
     }
 }
 
-module.exports = { register, login, me };
+// ---------------------------------------------------------------
+// PUT /api/auth/me   (requires token)
+// body: { name?, photo_url?, current_password?, new_password?,
+//         artisans also: phone?, technique?, craft_description?, workshop_name?, location? }
+// ---------------------------------------------------------------
+async function updateMe(req, res) {
+    const { id, role } = req.user;
+    const map = ROLE_TABLES[role];
+    if (!map) return res.status(400).json({ error: 'Invalid role' });
+
+    const {
+        name, photo_url, phone, technique, craft_description, workshop_name, location,
+        current_password, new_password,
+    } = req.body;
+    if (name !== undefined && !String(name).trim()) {
+        return res.status(400).json({ error: 'Name cannot be empty' });
+    }
+
+    try {
+        // Optional password change — requires the current password
+        if (new_password) {
+            if (new_password.length < 6) {
+                return res.status(400).json({ error: 'New password must be at least 6 characters' });
+            }
+            const cur = await pool.query(
+                `SELECT password_hash FROM ${map.table} WHERE ${map.idColumn} = $1`, [id]
+            );
+            if (cur.rowCount === 0) return res.status(404).json({ error: 'User not found' });
+            const ok = await comparePassword(current_password || '', cur.rows[0].password_hash);
+            if (!ok) return res.status(400).json({ error: 'Current password is incorrect' });
+
+            const hash = await hashPassword(new_password);
+            await pool.query(
+                `UPDATE ${map.table} SET password_hash = $1 WHERE ${map.idColumn} = $2`, [hash, id]
+            );
+        }
+
+        if (role === 'artisan') {
+            await pool.query(`
+                UPDATE artisan SET
+                    name              = COALESCE($1, name),
+                    phone             = COALESCE($2, phone),
+                    technique         = COALESCE($3, technique),
+                    craft_description = COALESCE($4, craft_description),
+                    workshop_name     = COALESCE($5, workshop_name),
+                    location          = COALESCE($6, location),
+                    photo_url         = COALESCE($7, photo_url)
+                WHERE artisan_id = $8
+            `, [name?.trim() || null, phone ?? null, technique ?? null, craft_description ?? null,
+                workshop_name ?? null, location ?? null, photo_url ?? null, id]);
+        } else if (role === 'buyer') {
+            await pool.query(`
+                UPDATE buyer SET
+                    name      = COALESCE($1, name),
+                    photo_url = COALESCE($2, photo_url)
+                WHERE buyer_id = $3
+            `, [name?.trim() || null, photo_url ?? null, id]);
+        } else {
+            await pool.query(
+                'UPDATE admin SET name = COALESCE($1, name) WHERE admin_id = $2',
+                [name?.trim() || null, id]
+            );
+        }
+
+        return me(req, res);
+    } catch (err) {
+        console.error('updateMe error:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+}
+
+module.exports = { register, login, me, updateMe };
