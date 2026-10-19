@@ -1,23 +1,29 @@
 // controllers/productController.js
 const pool = require('../database');
 
+// Stock must be a whole number >= 0. Returns null if invalid.
+function parseStock(value) {
+    const n = Number(value);
+    return Number.isInteger(n) && n >= 0 ? n : null;
+}
+
 // ---------------------------------------------------------------
 // GET /api/products
 // Public. Returns all available products with artisan info.
-// Supports ?category=... and ?artisan_id=... filters.
+// Supports ?category=... ?artisan_id=... ?search=... ?limit=... filters.
 // ---------------------------------------------------------------
 async function listProducts(req, res) {
-    const { category, artisan_id, search } = req.query;
+    const { category, artisan_id, search, limit } = req.query;
 
     let sql = `
         SELECT
             p.product_id, p.title, p.description, p.price, p.category,
-            p.image_url, p.status, p.created_at,
+            p.image_url, p.status, p.stock, p.created_at,
             a.artisan_id, a.name AS artisan_name,
-            a.technique, a.craft_description
+            a.technique, a.craft_description, a.status AS artisan_status
         FROM product p
         JOIN artisan a ON a.artisan_id = p.artisan_id
-        WHERE p.status = 'available'
+        WHERE p.status = 'available' AND a.status <> 'rejected'
     `;
     const params = [];
 
@@ -35,6 +41,12 @@ async function listProducts(req, res) {
     }
 
     sql += ' ORDER BY p.created_at DESC';
+
+    const n = parseInt(limit);
+    if (n > 0) {
+        params.push(Math.min(n, 100));
+        sql += ` LIMIT $${params.length}`;
+    }
 
     try {
         const result = await pool.query(sql, params);
@@ -55,9 +67,10 @@ async function getProduct(req, res) {
         const result = await pool.query(`
             SELECT
                 p.product_id, p.title, p.description, p.price, p.category,
-                p.image_url, p.status, p.created_at,
-                a.artisan_id, a.name AS artisan_name, a.email AS artisan_email,
-                a.technique, a.craft_description, a.status AS artisan_status
+                p.image_url, p.status, p.stock, p.created_at,
+                a.artisan_id, a.name AS artisan_name, a.photo_url AS artisan_photo,
+                a.technique, a.craft_description, a.workshop_name, a.location,
+                a.status AS artisan_status
             FROM product p
             JOIN artisan a ON a.artisan_id = p.artisan_id
             WHERE p.product_id = $1
@@ -75,10 +88,10 @@ async function getProduct(req, res) {
 
 // ---------------------------------------------------------------
 // POST /api/products   (Artist only)
-// body: { title, description, price, category, image_url }
+// body: { title, description, price, category, image_url, stock }
 // ---------------------------------------------------------------
 async function createProduct(req, res) {
-    const { title, description, price, category, image_url } = req.body;
+    const { title, description, price, category, image_url, stock = 1 } = req.body;
     const artisanId = req.user.id;
 
     if (!title || price === undefined) {
@@ -90,12 +103,17 @@ async function createProduct(req, res) {
         return res.status(400).json({ error: 'Invalid price' });
     }
 
+    const numericStock = parseStock(stock);
+    if (numericStock === null) {
+        return res.status(400).json({ error: 'Stock must be a whole number (0 or more)' });
+    }
+
     try {
         const result = await pool.query(`
-            INSERT INTO product (artisan_id, title, description, price, category, image_url)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT INTO product (artisan_id, title, description, price, category, image_url, stock)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING *
-        `, [artisanId, title, description || null, numericPrice, category || null, image_url || null]);
+        `, [artisanId, title, description || null, numericPrice, category || null, image_url || null, numericStock]);
 
         res.status(201).json({ product: result.rows[0] });
     } catch (err) {
@@ -110,7 +128,15 @@ async function createProduct(req, res) {
 async function updateProduct(req, res) {
     const { id } = req.params;
     const artisanId = req.user.id;
-    const { title, description, price, category, image_url, status } = req.body;
+    const { title, description, price, category, image_url, status, stock } = req.body;
+
+    let numericStock = null;
+    if (stock !== undefined && stock !== null && stock !== '') {
+        numericStock = parseStock(stock);
+        if (numericStock === null) {
+            return res.status(400).json({ error: 'Stock must be a whole number (0 or more)' });
+        }
+    }
 
     try {
         // Verify ownership
@@ -130,10 +156,11 @@ async function updateProduct(req, res) {
                 price       = COALESCE($3, price),
                 category    = COALESCE($4, category),
                 image_url   = COALESCE($5, image_url),
-                status      = COALESCE($6, status)
-            WHERE product_id = $7
+                status      = COALESCE($6, status),
+                stock       = COALESCE($7, stock)
+            WHERE product_id = $8
             RETURNING *
-        `, [title, description, price, category, image_url, status, id]);
+        `, [title, description, price, category, image_url, status, numericStock, id]);
 
         res.json({ product: result.rows[0] });
     } catch (err) {
@@ -150,14 +177,25 @@ async function deleteProduct(req, res) {
     const artisanId = req.user.id;
 
     try {
-        const result = await pool.query(
-            'DELETE FROM product WHERE product_id = $1 AND artisan_id = $2 RETURNING product_id',
+        const own = await pool.query(
+            'SELECT product_id FROM product WHERE product_id = $1 AND artisan_id = $2',
             [id, artisanId]
         );
-        if (result.rowCount === 0) {
+        if (own.rowCount === 0) {
             return res.status(404).json({ error: 'Product not found or not yours' });
         }
-        res.json({ deleted: result.rows[0].product_id });
+
+        // Products that appear in past orders can't be hard-deleted (order history
+        // must keep pointing at them), so archive them instead.
+        const ordered = await pool.query('SELECT 1 FROM order_item WHERE product_id = $1 LIMIT 1', [id]);
+        if (ordered.rowCount > 0) {
+            await pool.query("UPDATE product SET status = 'archived' WHERE product_id = $1", [id]);
+            await pool.query('DELETE FROM cart_item WHERE product_id = $1', [id]);
+            return res.json({ archived: Number(id) });
+        }
+
+        await pool.query('DELETE FROM product WHERE product_id = $1', [id]);
+        res.json({ deleted: Number(id) });
     } catch (err) {
         console.error('deleteProduct error:', err);
         res.status(500).json({ error: 'Server error' });
@@ -172,7 +210,7 @@ async function myProducts(req, res) {
     try {
         const result = await pool.query(`
             SELECT * FROM product
-            WHERE artisan_id = $1
+            WHERE artisan_id = $1 AND status <> 'archived'
             ORDER BY created_at DESC
         `, [artisanId]);
         res.json({ count: result.rowCount, products: result.rows });
