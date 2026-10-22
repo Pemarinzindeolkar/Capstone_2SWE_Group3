@@ -9,7 +9,7 @@ const { hashPassword, comparePassword } = require('./password');
 async function ensureAdmin() {
     const { ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_NAME = 'Labzo Admin' } = process.env;
     if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
-        console.warn('⚠️  ADMIN_EMAIL / ADMIN_PASSWORD not set — no built-in admin account');
+        console.warn('  ADMIN_EMAIL / ADMIN_PASSWORD not set — no built-in admin account');
         return;
     }
     const email = ADMIN_EMAIL.trim().toLowerCase();
@@ -20,7 +20,7 @@ async function ensureAdmin() {
         [email]
     );
     if (taken.rowCount > 0) {
-        console.warn(`⚠️  ${email} is already a buyer/artisan account — built-in admin not created`);
+        console.warn(` ${email} is already a buyer/artisan account — built-in admin not created`);
         return;
     }
 
@@ -34,15 +34,15 @@ async function ensureAdmin() {
             'INSERT INTO admin (name, email, password_hash) VALUES ($1, $2, $3)',
             [ADMIN_NAME, email, await hashPassword(ADMIN_PASSWORD)]
         );
-        console.log(`👤 Built-in admin created: ${email}`);
+        console.log(` Built-in admin created: ${email}`);
     } else if (!(await comparePassword(ADMIN_PASSWORD, existing.rows[0].password_hash))) {
         await pool.query(
             'UPDATE admin SET password_hash = $1 WHERE admin_id = $2',
             [await hashPassword(ADMIN_PASSWORD), existing.rows[0].admin_id]
         );
-        console.log(`👤 Built-in admin password updated from .env: ${email}`);
+        console.log(` Built-in admin password updated from .env: ${email}`);
     } else {
-        console.log(`👤 Built-in admin ready: ${email}`);
+        console.log(` Built-in admin ready: ${email}`);
     }
 }
 

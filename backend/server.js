@@ -58,7 +58,7 @@ app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
 // so /api/health still answers and the error is visible in the logs)
 require('./migrate')()
     .then(() => require('./utils/seedAdmin')())
-    .catch(err => console.error('❌ Startup DB setup failed:', err.message))
+    .catch(err => console.error(' Startup DB setup failed:', err.message))
     .finally(() => {
         app.listen(PORT, () => {
             console.log(`Labzo running on http://localhost:${PORT}`);

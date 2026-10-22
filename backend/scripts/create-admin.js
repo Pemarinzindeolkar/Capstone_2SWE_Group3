@@ -19,11 +19,11 @@ async function main() {
         RETURNING admin_id, name, email
     `, [name, email, hash]);
 
-    console.log('✅ Admin ready:', result.rows[0]);
+    console.log('Admin ready:', result.rows[0]);
     await pool.end();
 }
 
 main().catch(err => {
-    console.error('❌ Failed:', err.message);
+    console.error('Failed:', err.message);
     process.exit(1);
 });
