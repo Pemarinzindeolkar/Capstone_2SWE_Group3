@@ -5,7 +5,7 @@ require('dotenv').config();
 const connectionString = process.env.DATABASE_URL;
 
 if (!connectionString) {
-    console.error('❌ DATABASE_URL is not set!');
+    console.error('DATABASE_URL is not set!');
 }
 
 const pool = new Pool({
@@ -15,7 +15,7 @@ const pool = new Pool({
         : false
 });
 
-pool.on('connect', () => console.log('✅ Connected to Postgres'));
-pool.on('error', (err) => console.error('❌ Postgres error:', err.message));
+pool.on('connect', () => console.log('Connected to Postgres'));
+pool.on('error', (err) => console.error('Postgres error:', err.message));
 
 module.exports = pool;

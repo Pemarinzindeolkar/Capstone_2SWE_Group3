@@ -15,7 +15,7 @@ const router = express.Router();
 const { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } = process.env;
 const useCloudinary = Boolean(CLOUDINARY_CLOUD_NAME && CLOUDINARY_API_KEY && CLOUDINARY_API_SECRET);
 
-console.log(useCloudinary ? '🖼  Image uploads → Cloudinary' : '🖼  Image uploads → Postgres (image table)');
+console.log(useCloudinary ? 'Image uploads → Cloudinary' : 'Image uploads → Postgres (image table)');
 
 function fileFilter(req, file, cb) {
     const allowed = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
