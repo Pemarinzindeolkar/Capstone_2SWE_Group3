@@ -1,6 +1,5 @@
 // controllers/adminController.js
 const pool = require('../database');
-const { confirmPayment, setProofStatus } = require('../utils/orderPayment');
 
 // ---------------------------------------------------------------
 // GET /api/admin/stats
@@ -92,44 +91,6 @@ async function listPayments(req, res) {
 }
 
 // ---------------------------------------------------------------
-// PUT /api/admin/payments/:id/status   { status }
-// Verifying a payment marks its order paid and reduces stock — unless the
-// artist already confirmed it (see utils/orderPayment.js).
-// ---------------------------------------------------------------
-async function setPaymentStatus(req, res) {
-    const { id } = req.params;
-    const { status } = req.body;
-    if (!['pending', 'verified', 'rejected'].includes(status)) {
-        return res.status(400).json({ error: 'Invalid status' });
-    }
-
-    const client = await pool.connect();
-    try {
-        await client.query('BEGIN');
-        const found = await client.query('SELECT order_id FROM payment WHERE proof_id = $1', [id]);
-        if (found.rowCount === 0) {
-            await client.query('ROLLBACK');
-            return res.status(404).json({ error: 'Payment not found' });
-        }
-        const orderId = found.rows[0].order_id;
-
-        const payment = status === 'verified'
-            ? await confirmPayment(client, orderId, id)
-            : await setProofStatus(client, orderId, id, status);
-
-        await client.query('COMMIT');
-        res.json({ payment });
-    } catch (err) {
-        await client.query('ROLLBACK');
-        if (err.status) return res.status(err.status).json({ error: err.message });
-        console.error('admin setPaymentStatus error:', err);
-        res.status(500).json({ error: 'Server error' });
-    } finally {
-        client.release();
-    }
-}
-
-// ---------------------------------------------------------------
 // GET /api/admin/orders
 // ---------------------------------------------------------------
 async function listOrders(req, res) {
@@ -151,4 +112,4 @@ async function listOrders(req, res) {
     }
 }
 
-module.exports = { stats, listArtisans, setArtisanStatus, listPayments, setPaymentStatus, listOrders };
+module.exports = { stats, listArtisans, setArtisanStatus, listPayments, listOrders };

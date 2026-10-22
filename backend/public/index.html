@@ -96,8 +96,12 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">Password</label>
-                        <input type="password" id="signup-password" required minlength="6" autocomplete="new-password" class="input-field">
+                        <input type="password" id="signup-password" required minlength="6" autocomplete="new-password" class="input-field" data-reveal>
                         <p class="text-xs text-gray-400 mt-1">At least 6 characters.</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">Confirm Password</label>
+                        <input type="password" id="signup-password-confirm" required autocomplete="new-password" class="input-field" data-reveal data-match="signup-password">
                     </div>
 
                     <div class="flex items-center gap-2 mt-4">
@@ -155,8 +159,12 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold mb-1">Password</label>
-                            <input type="password" id="artist-pass" required minlength="6" autocomplete="new-password" class="input-field">
+                            <input type="password" id="artist-pass" required minlength="6" autocomplete="new-password" class="input-field" data-reveal>
                             <p class="text-xs text-gray-400 mt-1">At least 6 characters.</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold mb-1">Confirm Password</label>
+                            <input type="password" id="artist-pass-confirm" required autocomplete="new-password" class="input-field" data-reveal data-match="artist-pass">
                         </div>
                         <div>
                             <label class="block text-xs font-bold mb-1">Phone Number</label>

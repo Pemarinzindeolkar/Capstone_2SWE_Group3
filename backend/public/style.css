@@ -105,3 +105,16 @@ body {
 /* Mobile nav: let links scroll sideways instead of wrapping */
 .nav-scroll { scrollbar-width: none; }
 .nav-scroll::-webkit-scrollbar { display: none; }
+
+/* Show/hide password eye (added by initPasswordFields in script.js) */
+.password-wrap { position: relative; }
+.password-wrap .input-field { padding-right: 2.75rem; }
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 0.75rem;
+    transform: translateY(-50%);
+    color: #9CA3AF;
+    display: flex;
+}
+.password-toggle:hover { color: #4B5563; }

@@ -480,11 +480,52 @@ async function submitArtistRegistration(btn) {
     });
 }
 
+// Signup password fields: a show/hide eye on [data-reveal] inputs, and
+// [data-match="<id>"] inputs must equal that field (blocks submit / next step)
+const EYE_OPEN = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYE_SHUT = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 19c-7 0-11-7-11-7a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a18.5 18.5 0 0 1-2.16 3.19M1 1l22 22"/></svg>';
+
+function initPasswordFields() {
+    document.querySelectorAll('input[data-reveal]').forEach(input => {
+        const wrap = document.createElement('div');
+        wrap.className = 'password-wrap';
+        input.parentNode.insertBefore(wrap, input);
+        wrap.appendChild(input);
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'password-toggle';
+        btn.setAttribute('aria-label', 'Show password');
+        btn.innerHTML = EYE_OPEN;
+        wrap.appendChild(btn);
+
+        const setShown = (shown) => {
+            input.type = shown ? 'text' : 'password';
+            btn.innerHTML = shown ? EYE_SHUT : EYE_OPEN;
+            btn.setAttribute('aria-label', shown ? 'Hide password' : 'Show password');
+        };
+        btn.addEventListener('click', () => setShown(input.type === 'password'));
+        input.form?.addEventListener('reset', () => setShown(false));
+    });
+
+    document.querySelectorAll('input[data-match]').forEach(confirm => {
+        const original = document.getElementById(confirm.dataset.match);
+        const check = () => confirm.setCustomValidity(
+            confirm.value && confirm.value !== original.value ? 'Passwords do not match' : ''
+        );
+        original.addEventListener('input', check);
+        confirm.addEventListener('input', check);
+        confirm.form?.addEventListener('reset', () => confirm.setCustomValidity(''));
+    });
+}
+
 function initAuth() {
     const bind = (id, ev, fn) => {
         const el = document.getElementById(id);
         if (el) el.addEventListener(ev, fn);
     };
+
+    initPasswordFields();
 
     bind('btn-go-signup', 'click', () => showScreen('signup-screen'));
     bind('btn-go-artist', 'click', () => showScreen('artist-step1'));
@@ -1684,11 +1725,7 @@ async function showAdminTab(tab) {
                         <p class="font-bold text-gray-800">Order #${p.order_id} · ${money(p.total)} ${pill(p.status)}</p>
                         <p class="text-xs text-gray-500">${esc(p.buyer_name)} (${esc(p.buyer_email)}) → ${esc(p.artisan_name)}</p>
                         <p class="text-xs text-gray-400">Uploaded ${fmtDate(p.uploaded_at)} · order is ${esc(p.order_status)}</p>
-                        ${p.status === 'pending' && p.order_status === 'pending' ? '<p class="text-xs text-amber-700">The artisan hasn\'t approved this order yet.</p>' : ''}
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        ${p.status !== 'verified' ? `<button onclick="setPaymentStatus(${p.proof_id}, 'verified')" class="text-xs bg-green-600 text-white px-3 py-2 rounded hover:bg-green-700">Verify</button>` : ''}
-                        ${p.status !== 'rejected' ? `<button onclick="setPaymentStatus(${p.proof_id}, 'rejected')" class="text-xs border border-red-300 text-red-600 px-3 py-2 rounded hover:bg-red-50">Reject</button>` : ''}
+                        ${p.status === 'pending' ? '<p class="text-xs text-amber-700">Waiting for the artisan to verify this payment.</p>' : ''}
                     </div>
                 </div>`).join('') : '<p class="text-gray-400">No payment proofs yet.</p>';
         } else {
@@ -1727,14 +1764,6 @@ async function setArtisanStatus(id, status) {
     } catch (err) { toast(err.message, 'error'); }
 }
 
-async function setPaymentStatus(id, status) {
-    try {
-        await API.put('/api/admin/payments/' + id + '/status', { status });
-        toast('Payment ' + status + (status === 'verified' ? ' — order marked paid, stock updated' : ''), 'success');
-        showAdmin();
-    } catch (err) { toast(err.message, 'error'); }
-}
-
 // ============================================================
 // START
 // ============================================================
@@ -1766,5 +1795,5 @@ Object.assign(window, {
     loadArtistDashboard, showAddProduct, editProduct, showMyProducts, deleteProduct,
     showArtistOrders, updateOrderStatus, reviewPayment,
     removeWorkshopFile, setArtworkFile,
-    showAdmin, showAdminTab, setArtisanStatus, setPaymentStatus,
+    showAdmin, showAdminTab, setArtisanStatus,
 });
