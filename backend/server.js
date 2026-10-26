@@ -2,6 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
 
 const app = express();
@@ -15,6 +16,11 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // SERVE FRONTEND (static files from public/)
 // ==========================================
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Home page hero slideshow: every image in homepage_images/, this one first
+const HERO_DIR = path.join(__dirname, 'homepage_images');
+const HERO_FIRST = 'AG276-Punap-Ugyen-Yak-snow-mountain48C1700-1-2048x1366';
+app.use('/homepage_images', express.static(HERO_DIR, { maxAge: '7d' }));
 
 // ==========================================
 // API ROUTES
@@ -31,6 +37,17 @@ app.get('/api/db-test', async (req, res) => {
     } catch (err) {
         res.status(500).json({ status: 'error', message: err.message });
     }
+});
+
+app.get('/api/homepage-images', (req, res) => {
+    fs.readdir(HERO_DIR, (err, files) => {
+        if (err) return res.json({ images: [] });
+        const images = files
+            .filter(f => /\.(jpe?g|png|gif|webp)$/i.test(f))
+            .sort((a, b) => b.startsWith(HERO_FIRST) - a.startsWith(HERO_FIRST) || a.localeCompare(b))
+            .map(f => '/homepage_images/' + encodeURIComponent(f));
+        res.json({ images });
+    });
 });
 
 app.use('/api/auth',     require('./routes/auth'));

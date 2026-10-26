@@ -10,15 +10,17 @@ function parseStock(value) {
 // ---------------------------------------------------------------
 // GET /api/products
 // Public. Returns all available products with artisan info.
-// Supports ?category=... ?artisan_id=... ?search=... ?limit=... filters.
+// Supports ?category=... ?artisan_id=... ?search=... ?limit=... filters,
+// and ?sort=popular (most liked first). like_count = buyers who saved it.
 // ---------------------------------------------------------------
 async function listProducts(req, res) {
-    const { category, artisan_id, search, limit } = req.query;
+    const { category, artisan_id, search, limit, sort } = req.query;
 
     let sql = `
         SELECT
             p.product_id, p.title, p.description, p.price, p.category,
             p.image_url, p.status, p.stock, p.created_at,
+            (SELECT COUNT(*) FROM wishlist w WHERE w.product_id = p.product_id)::int AS like_count,
             a.artisan_id, a.name AS artisan_name,
             a.technique, a.craft_description, a.status AS artisan_status
         FROM product p
@@ -40,7 +42,9 @@ async function listProducts(req, res) {
         sql += ` AND (p.title ILIKE $${params.length} OR p.description ILIKE $${params.length})`;
     }
 
-    sql += ' ORDER BY p.created_at DESC';
+    sql += sort === 'popular'
+        ? ' ORDER BY like_count DESC, p.created_at DESC'
+        : ' ORDER BY p.created_at DESC';
 
     const n = parseInt(limit);
     if (n > 0) {
@@ -68,6 +72,7 @@ async function getProduct(req, res) {
             SELECT
                 p.product_id, p.title, p.description, p.price, p.category,
                 p.image_url, p.status, p.stock, p.created_at,
+                (SELECT COUNT(*) FROM wishlist w WHERE w.product_id = p.product_id)::int AS like_count,
                 a.artisan_id, a.name AS artisan_name, a.photo_url AS artisan_photo,
                 a.technique, a.craft_description, a.workshop_name, a.location,
                 a.status AS artisan_status

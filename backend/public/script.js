@@ -54,6 +54,18 @@ const CATEGORIES = [
     ['other', 'Other'],
 ];
 
+// "Shop by craft" tiles on the home page (public/category_images/).
+// A category without an image shows its first letter instead.
+const CATEGORY_IMAGES = {
+    masks: 'category_images/masks.jpg',
+    textiles: 'category_images/textiles.jpg',
+    paintings: 'category_images/paintings.jpg',
+    jewelry: 'category_images/jewelry.jpg',
+    pottery: 'category_images/pottery.jpg',
+    bamboo: 'category_images/bamboo.jpg',
+    other: 'category_images/other.jpg',
+};
+
 // Zorig Chusum — the 13 traditional arts of Bhutan
 const CRAFTS = [
     'Lhazo:Painting', 'Jinzo:Sculpture & clay', 'Parzo:Wood carving', 'Yigzo:Calligraphy',
@@ -262,17 +274,19 @@ function renderNav(header) {
     const active = header.dataset.active;
     const link = ([key, label, action]) => {
         const text = key === 'bag' && state.bagCount ? `${label} (${state.bagCount})` : label;
-        return `<span class="cursor-pointer ${key === active ? 'font-bold underline' : 'hover:underline'}" onclick="${action}">${esc(text)}</span>`;
+        return `<span class="nav-link ${key === active ? 'active' : ''}" onclick="${action}">${esc(text)}</span>`;
     };
 
     header.innerHTML = `
-        <div class="w-full bg-brand px-4 md:px-8 py-4 text-white sticky top-0 z-10">
-            <div class="flex items-center gap-5 md:gap-6 text-sm whitespace-nowrap overflow-x-auto nav-scroll">
-                <span class="text-lg font-bold tracking-widest cursor-pointer mr-2" onclick="goHome()">LABZO</span>
+        <div class="w-full bg-brand px-4 md:px-8 py-4 md:py-5 text-white shadow-md">
+            <div class="flex items-center gap-2 md:gap-3 text-sm md:text-base font-medium whitespace-nowrap overflow-x-auto nav-scroll">
+                <span class="flex items-center gap-2 text-xl md:text-2xl font-bold tracking-widest cursor-pointer mr-3 md:mr-5" onclick="goHome()">
+                    <img src="logo.png" alt="" class="w-9 h-9 md:w-11 md:h-11 object-contain"><span class="font-brand">LABZO</span>
+                </span>
                 ${links.left.map(link).join('')}
                 <span class="flex-1"></span>
                 ${links.right.map(link).join('')}
-                <span class="cursor-pointer hover:underline" onclick="logout()">Logout</span>
+                <span class="nav-link" onclick="logout()">Logout</span>
             </div>
         </div>`;
 }
@@ -610,8 +624,33 @@ function initAuth() {
 }
 
 // ============================================================
-// HOME — hero, categories, 4 featured products, 3 featured artisans
+// HOME — hero, categories, 8 featured products, 3 featured artisans
 // ============================================================
+// Instagram-style like: tapping the heart saves the item (wishlist) and bumps its count
+const HEART_PATH = 'M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2 0 3.5 1.1 4.4 2.6h2C13.9 6.1 15.4 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z';
+
+function likeButton(p) {
+    const liked = state.savedIds.has(p.product_id);
+    return `
+        <button type="button" class="like-btn ${liked ? 'liked' : ''}" data-like="${p.product_id}"
+                onclick="event.stopPropagation(); toggleLike(${p.product_id}, this)"
+                aria-pressed="${liked}" aria-label="${liked ? 'Unlike' : 'Like'}">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path d="${HEART_PATH}"/></svg>
+            <span class="like-count">${p.like_count || 0}</span>
+        </button>`;
+}
+
+// Round "add to bag" shortcut on shop cards (hidden when out of stock)
+const BAG_ICON = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1 14H5L6 7z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/></svg>';
+const CHECK_ICON = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>';
+
+function quickAddButton(p) {
+    if (p.stock <= 0) return '';
+    return `
+        <button type="button" class="quick-add-btn" title="Add to bag" aria-label="Add ${esc(p.title)} to bag"
+                onclick="event.stopPropagation(); quickAddToBag(${p.product_id}, this)">${BAG_ICON}</button>`;
+}
+
 function productCard(p, opts = {}) {
     return `
         <div onclick="openProduct(${p.product_id})"
@@ -619,6 +658,8 @@ function productCard(p, opts = {}) {
             <div class="relative aspect-square bg-gray-100 overflow-hidden">
                 ${img(p.image_url, 'w-full h-full object-cover' + (p.stock <= 0 ? ' opacity-50 grayscale' : ''))}
                 <div class="absolute top-2 left-2">${stockBadge(p.stock)}</div>
+                ${opts.like ? `<div class="absolute top-2 right-2">${likeButton(p)}</div>` : ''}
+                ${opts.quickAdd ? `<div class="absolute bottom-2 right-2">${quickAddButton(p)}</div>` : ''}
             </div>
             <div class="p-3 md:p-4">
                 <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">${esc(categoryLabel(p.category))}</p>
@@ -647,8 +688,65 @@ function artisanCard(a, centered = false) {
         </div>`;
 }
 
+// Hero slideshow — images come from backend/homepage_images (GET /api/homepage-images).
+// Only the current and next photo are downloaded; the rest load as they come up.
+const HERO_INTERVAL_MS = 5000;
+let heroStarted = false;
+
+async function initHeroSlideshow() {
+    const box = document.getElementById('hero-slideshow');
+    if (!box || heroStarted) return;
+    heroStarted = true;
+
+    let images = [];
+    try { ({ images } = await API.get('/api/homepage-images')); } catch { /* keep the plain background */ }
+    if (!images.length) return;
+
+    box.innerHTML = `<div class="hero-track">${images.map((src, i) =>
+        `<img class="hero-slide" data-src="${esc(src)}" alt="Photo ${i + 1} of ${images.length}" ${i ? 'aria-hidden="true"' : ''}>`
+    ).join('')}</div>` + (images.length > 1 ? `
+        <button type="button" class="hero-arrow prev" aria-label="Previous photo">&#8249;</button>
+        <button type="button" class="hero-arrow next" aria-label="Next photo">&#8250;</button>
+        <div class="hero-dots">${images.map((_, i) =>
+            `<button type="button" class="hero-dot" aria-label="Show photo ${i + 1}"></button>`).join('')}
+        </div>` : '');
+
+    const track = box.querySelector('.hero-track');
+    const slides = [...box.querySelectorAll('.hero-slide')];
+    const dots = [...box.querySelectorAll('.hero-dot')];
+    const load = i => { const s = slides[i]; if (s && !s.src) s.src = s.dataset.src; };
+    let current = 0;
+
+    const show = (i) => {
+        current = (i + slides.length) % slides.length;
+        load(current);
+        load((current + 1) % slides.length);
+        track.style.transform = `translateX(-${current * 100}%)`;
+        slides.forEach((s, j) => s.toggleAttribute('aria-hidden', j !== current));
+        dots.forEach((d, j) => d.classList.toggle('active', j === current));
+    };
+    show(0);
+    if (slides.length < 2) return;
+
+    // Autoplay; paused only while another screen is open or the tab is hidden
+    let timer;
+    const restart = () => {
+        clearInterval(timer);
+        timer = setInterval(() => {
+            if (box.offsetParent !== null && !document.hidden) show(current + 1);
+        }, HERO_INTERVAL_MS);
+    };
+    // Manual controls — clicking also restarts the timer so it doesn't jump straight after
+    const go = i => { show(i); restart(); };
+    box.querySelector('.hero-arrow.prev').addEventListener('click', () => go(current - 1));
+    box.querySelector('.hero-arrow.next').addEventListener('click', () => go(current + 1));
+    dots.forEach((d, i) => d.addEventListener('click', () => go(i)));
+    restart();
+}
+
 async function loadHome() {
     showScreen('home-screen');
+    initHeroSlideshow();
 
     const u = API.getUser();
     const greet = document.getElementById('home-greeting');
@@ -657,7 +755,14 @@ async function loadHome() {
 
     const cats = document.getElementById('home-categories');
     if (cats) cats.innerHTML = CATEGORIES.map(([v, l]) => `
-        <div onclick="openShop('${v}')" class="bg-white border border-gray-200 rounded-lg py-4 px-3 text-center text-sm font-semibold text-gray-700 hover:border-brand hover:text-brand cursor-pointer transition">${esc(l)}</div>
+        <div onclick="openShop('${v}')" class="group flex-none w-24 md:w-auto bg-white border border-gray-200 rounded-lg overflow-hidden hover:border-brand hover:shadow-md cursor-pointer transition">
+            <div class="aspect-square bg-cream overflow-hidden flex items-center justify-center">
+                ${CATEGORY_IMAGES[v]
+                    ? `<img src="${CATEGORY_IMAGES[v]}" alt="" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">`
+                    : `<span class="text-3xl font-light text-brand">${esc(l[0])}</span>`}
+            </div>
+            <p class="py-2 px-1 text-center text-xs font-semibold text-gray-700 group-hover:text-brand truncate">${esc(l)}</p>
+        </div>
     `).join('');
 
     const prodEl = document.getElementById('home-products');
@@ -667,13 +772,13 @@ async function loadHome() {
     artEl.innerHTML = loading;
 
     const [products, artisans] = await Promise.all([
-        API.get('/api/products?limit=4').catch(err => ({ error: err.message })),
+        API.get('/api/products?limit=8&sort=popular').catch(err => ({ error: err.message })),
         API.get('/api/artisans').catch(err => ({ error: err.message })),
     ]);
 
     if (products.error) prodEl.innerHTML = `<p class="text-red-500 col-span-full text-center py-10">${esc(products.error)}</p>`;
     else if (!products.products.length) prodEl.innerHTML = '<p class="text-gray-400 col-span-full text-center py-10">No artworks listed yet.</p>';
-    else prodEl.innerHTML = products.products.slice(0, 4).map(p => productCard(p)).join('');
+    else prodEl.innerHTML = products.products.slice(0, 8).map(p => productCard(p)).join('');
 
     if (artisans.error) artEl.innerHTML = `<p class="text-red-500 col-span-full text-center py-10">${esc(artisans.error)}</p>`;
     else if (!artisans.artisans.length) artEl.innerHTML = '<p class="text-gray-400 col-span-full text-center py-10">No artisans yet.</p>';
@@ -746,7 +851,7 @@ async function loadShop() {
             empty.classList.remove('hidden');
             return;
         }
-        grid.innerHTML = products.map(p => productCard(p)).join('');
+        grid.innerHTML = products.map(p => productCard(p, { like: true, quickAdd: true })).join('');
     } catch (err) {
         if (reqId !== state.shopRequest) return;
         grid.innerHTML = `<p class="text-red-500 col-span-full text-center py-10">${esc(err.message)}</p>`;
@@ -859,6 +964,23 @@ async function addToBag(productId, btn) {
             return true;
         } catch (err) { toast(err.message, 'error'); return false; }
     });
+}
+
+// Shop-card shortcut: same as "Add to Bag", but keeps the icon and flashes a ✓
+async function quickAddToBag(productId, btn) {
+    if (btn.disabled) return;
+    btn.disabled = true;
+    btn.classList.add('busy');
+    const ok = await addToBag(productId, null);
+    btn.classList.remove('busy');
+    if (!ok) { btn.disabled = false; return; }
+    btn.classList.add('added');
+    btn.innerHTML = CHECK_ICON;
+    setTimeout(() => {
+        btn.classList.remove('added');
+        btn.innerHTML = BAG_ICON;
+        btn.disabled = false;
+    }, 1200);
 }
 
 async function buyNow(productId, btn) {
@@ -1092,6 +1214,39 @@ async function toggleSaved(productId, btn) {
             btn.classList.toggle('text-brand', now);
         }
     } catch (err) { toast(err.message, 'error'); }
+}
+
+// Heart on shop cards. Updates instantly, then confirms with the server's count
+// (rolls back if the request fails).
+async function toggleLike(productId, btn) {
+    if (!requireBuyer('Log in as a buyer to like artworks')) return;
+    if (btn.disabled) return;
+    const countEl = btn.querySelector('.like-count');
+    const wasLiked = state.savedIds.has(productId);
+    const oldCount = Number(countEl.textContent) || 0;
+
+    const render = (liked, count) => {
+        btn.classList.toggle('liked', liked);
+        btn.setAttribute('aria-pressed', liked);
+        btn.setAttribute('aria-label', liked ? 'Unlike' : 'Like');
+        countEl.textContent = count;
+    };
+
+    render(!wasLiked, Math.max(0, oldCount + (wasLiked ? -1 : 1)));
+    if (!wasLiked) { btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop'); }
+    btn.disabled = true;
+    try {
+        const res = wasLiked
+            ? await API.del('/api/wishlist/' + productId)
+            : await API.post('/api/wishlist', { product_id: productId });
+        if (wasLiked) state.savedIds.delete(productId); else state.savedIds.add(productId);
+        render(!wasLiked, res.like_count);
+    } catch (err) {
+        render(wasLiked, oldCount);
+        toast(err.message, 'error');
+    } finally {
+        btn.disabled = false;
+    }
 }
 
 async function showSaved() {
