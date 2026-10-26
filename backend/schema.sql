@@ -140,3 +140,6 @@ BEGIN
         UPDATE product SET stock = 4 WHERE category = 'textiles';
     END IF;
 END $$;
+
+-- Like counts (COUNT of wishlist rows per product) are read on every shop load
+CREATE INDEX IF NOT EXISTS idx_wishlist_product ON wishlist (product_id);

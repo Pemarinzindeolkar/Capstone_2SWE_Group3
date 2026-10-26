@@ -8,7 +8,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Cinzel:wght@700&family=Cormorant+Garamond:ital,wght@1,500;1,600&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
@@ -20,15 +20,21 @@
         <!-- ========================================== -->
         <!-- SCREEN 1: LOGIN -->
         <!-- ========================================== -->
-        <div id="login-screen" class="screen active w-full h-full">
+        <div id="login-screen" class="screen active w-full h-full relative">
+            <!-- Decorative corner ornaments (style.css: .auth-corner) -->
+            <span class="auth-corner tl" aria-hidden="true"></span>
+            <span class="auth-corner tr" aria-hidden="true"></span>
+            <span class="auth-corner bl" aria-hidden="true"></span>
+            <span class="auth-corner br" aria-hidden="true"></span>
+
             <!-- Left Panel (Brand Color) -->
             <div class="hidden md:flex md:w-1/2 bg-brand p-12 flex-col justify-between relative text-white">
                 <div class="flex flex-col items-center justify-center mt-10">
-                    <img src="logo.png" alt="Labzo Logo" class="logo-img-large">
-                    <p class="slogan-text-small">LABZO</p>
+                    <img src="logo.png" alt="Labzo Logo" class="logo-img-large auth-logo">
+                    <p class="auth-wordmark font-brand">LABZO</p>
                 </div>
-                <div class="max-w-md mx-auto text-center">
-                    <p class="text-2xl font-light italic leading-relaxed text-gray-200">"Closing gaps, adding values and making everyone happy!"</p>
+                <div class="max-w-xl mx-auto text-center">
+                    <p class="auth-slogan">Closing gaps, adding values and <span class="auth-slogan-accent">making everyone happy!</span></p>
                 </div>
                 <div class="flex gap-4 justify-center">
                     <button type="button" id="btn-go-signup" class="px-6 py-2 border border-white/50 text-white text-sm hover:bg-white hover:text-brand transition rounded">BUY ARTWORK</button>
@@ -37,42 +43,50 @@
             </div>
 
             <!-- Right Panel (Form) -->
-            <div class="w-full md:w-1/2 bg-white p-8 md:p-12 flex flex-col justify-center overflow-y-auto">
-                <div class="md:hidden text-2xl font-bold tracking-widest text-brand mb-8">LABZO</div>
-                <h2 class="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h2>
-                <p class="text-gray-500 text-sm mb-8">Please enter your details to access your account.</p>
+            <div class="auth-form w-full md:w-1/2 bg-white px-10 py-16 md:px-16 flex flex-col justify-center overflow-y-auto">
+                <div class="w-full max-w-lg mx-auto">
+                <div class="md:hidden font-brand text-3xl tracking-widest text-brand mb-8">LABZO</div>
+                <h2 class="text-4xl lg:text-5xl font-bold text-gray-800 mb-3">Welcome Back</h2>
+                <p class="text-gray-500 text-base mb-10">Please enter your details to access your account.</p>
 
                 <form id="login-form" class="space-y-6">
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">Email address</label>
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Email address</label>
                         <input type="email" id="login-email" required placeholder="test1@test.com" autocomplete="email" class="input-field">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">Password</label>
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Password</label>
                         <input type="password" id="login-password" required placeholder="••••••••" autocomplete="current-password" class="input-field">
                     </div>
 
-                    <button type="submit" class="w-full bg-gray-900 text-white py-3 rounded text-sm font-semibold hover:bg-gray-700 transition mt-4">Log In</button>
+                    <button type="submit" class="w-full bg-gray-900 text-white py-4 rounded text-base font-semibold hover:bg-gray-700 transition mt-4">Log In</button>
 
-                    <div class="text-center text-xs text-gray-500 mt-4">
+                    <div class="text-center text-sm text-gray-500 mt-6">
                         Don't have an account? <span id="link-to-signup" class="text-brand font-bold cursor-pointer hover:underline">Sign up</span>
                         <span class="md:hidden"> · <span class="text-brand font-bold cursor-pointer hover:underline" onclick="showScreen('artist-step1')">Sell your art</span></span>
                     </div>
                 </form>
+                </div>
             </div>
         </div>
 
         <!-- ========================================== -->
         <!-- SCREEN 2: SIGN UP (BUYER) -->
         <!-- ========================================== -->
-        <div id="signup-screen" class="screen w-full h-full">
+        <div id="signup-screen" class="screen w-full h-full relative">
+            <!-- Decorative corner ornaments (style.css: .auth-corner) -->
+            <span class="auth-corner tl" aria-hidden="true"></span>
+            <span class="auth-corner tr" aria-hidden="true"></span>
+            <span class="auth-corner bl" aria-hidden="true"></span>
+            <span class="auth-corner br" aria-hidden="true"></span>
+
             <div class="hidden md:flex md:w-1/2 bg-brand p-12 flex-col justify-between relative text-white">
                 <div class="flex flex-col items-center justify-center mt-10">
-                    <img src="logo.png" alt="Labzo Logo" class="logo-img-large">
-                    <p class="slogan-text-small">LabZo</p>
+                    <img src="logo.png" alt="Labzo Logo" class="logo-img-large auth-logo">
+                    <p class="auth-wordmark font-brand">LABZO</p>
                 </div>
-                <div class="max-w-md mx-auto text-center">
-                    <p class="text-2xl font-light italic leading-relaxed text-gray-200">"Our marketplace was never small, IT WAS UNKNOWN!"</p>
+                <div class="max-w-xl mx-auto text-center">
+                    <p class="auth-slogan">Our marketplace was never small, <span class="auth-slogan-accent">it was unknown!</span></p>
                 </div>
                 <div class="flex gap-4 justify-center">
                     <button type="button" id="btn-buy-signup" class="px-6 py-2 border border-white/50 text-white text-sm hover:bg-white hover:text-brand transition rounded">BUY ARTWORK</button>
@@ -80,41 +94,43 @@
                 </div>
             </div>
 
-            <div class="w-full md:w-1/2 bg-white p-8 md:p-12 flex flex-col justify-center overflow-y-auto">
-                <div class="md:hidden text-2xl font-bold tracking-widest text-brand mb-8">LABZO</div>
-                <h2 class="text-3xl font-bold text-gray-800 mb-2">Create Account</h2>
-                <p class="text-gray-500 text-sm mb-6">Join our community of artists and collectors.</p>
+            <div class="auth-form w-full md:w-1/2 bg-white px-10 py-16 md:px-16 flex flex-col justify-center overflow-y-auto">
+                <div class="w-full max-w-lg mx-auto">
+                <div class="md:hidden font-brand text-3xl tracking-widest text-brand mb-8">LABZO</div>
+                <h2 class="text-4xl lg:text-5xl font-bold text-gray-800 mb-3">Create Account</h2>
+                <p class="text-gray-500 text-base mb-8">Join our community of artists and collectors.</p>
 
                 <form id="signup-form" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">Full Name</label>
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Full Name</label>
                         <input type="text" id="signup-name" required autocomplete="name" class="input-field">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">Email</label>
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Email</label>
                         <input type="email" id="signup-email" required autocomplete="email" class="input-field">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">Password</label>
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Password</label>
                         <input type="password" id="signup-password" required minlength="6" autocomplete="new-password" class="input-field" data-reveal>
-                        <p class="text-xs text-gray-400 mt-1">At least 6 characters.</p>
+                        <p class="text-sm text-gray-400 mt-1">At least 6 characters.</p>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">Confirm Password</label>
+                        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Confirm Password</label>
                         <input type="password" id="signup-password-confirm" required autocomplete="new-password" class="input-field" data-reveal data-match="signup-password">
                     </div>
 
                     <div class="flex items-center gap-2 mt-4">
                         <input type="checkbox" id="terms" required class="accent-brand w-4 h-4">
-                        <label for="terms" class="text-xs text-gray-500">I agree to the Terms &amp; Conditions</label>
+                        <label for="terms" class="text-sm text-gray-500">I agree to the Terms &amp; Conditions</label>
                     </div>
 
-                    <button type="submit" class="w-full bg-gray-900 text-white py-3 rounded text-sm font-semibold hover:bg-gray-700 transition mt-4">Sign Up</button>
+                    <button type="submit" class="w-full bg-gray-900 text-white py-4 rounded text-base font-semibold hover:bg-gray-700 transition mt-4">Sign Up</button>
 
-                    <div class="text-center text-xs text-gray-500 mt-4">
+                    <div class="text-center text-sm text-gray-500 mt-6">
                         Already have an account? <span id="link-to-login" class="text-brand font-bold cursor-pointer hover:underline">Log in</span>
                     </div>
                 </form>
+                </div>
             </div>
         </div>
 
@@ -340,50 +356,46 @@
         <div id="home-screen" class="screen w-full h-full bg-cream text-gray-900 flex-col overflow-y-auto">
             <header data-nav data-active="home"></header>
 
-            <!-- Hero -->
-            <div class="border-b border-gray-200 py-16 md:py-20 px-6 md:px-10 text-center">
-                <p class="text-xs uppercase tracking-widest text-brand font-semibold mb-4">— Zorig Chusum · The thirteen arts of Bhutan</p>
-                <h1 class="text-4xl md:text-5xl font-light text-gray-800 leading-tight max-w-3xl mx-auto">
-                    Objects with a <span class="text-brand font-normal">maker's fingerprint</span>.
-                </h1>
-                <p id="home-greeting" class="text-gray-500 max-w-xl mx-auto mt-6 text-sm leading-relaxed">
-                    Handmade masks, textiles, paintings and more — bought directly from the Bhutanese artisans who make them.
-                </p>
-                <form id="home-search-form" class="flex gap-2 max-w-md mx-auto mt-8">
-                    <input type="search" id="home-search" placeholder="Search artworks..."
-                        class="flex-1 min-w-0 border border-gray-300 rounded px-4 py-2 bg-white focus:outline-none focus:border-brand">
-                    <button type="submit" class="px-6 py-2 bg-gray-900 text-white text-sm rounded hover:bg-gray-700 transition">Search</button>
-                </form>
-                <div class="flex flex-wrap gap-4 justify-center mt-6">
-                    <button onclick="openShop()" class="px-8 py-3 bg-brand text-white text-sm font-bold rounded shadow hover:bg-opacity-90 transition">Shop all artworks</button>
-                    <button onclick="showArtists()" class="px-8 py-3 border border-gray-300 text-gray-700 text-sm font-bold rounded hover:bg-white transition">Meet the artisans</button>
+            <!-- Hero: text (left) + photo slideshow (right) -->
+            <div class="border-b border-gray-200 grid grid-cols-1 md:grid-cols-5">
+                <div class="md:col-span-3 py-12 md:py-16 px-6 md:px-10 flex flex-col justify-center text-center md:text-left">
+                    <p class="text-xs uppercase tracking-widest text-brand font-semibold mb-4"> Zorig Chusum · The thirteen arts of Bhutan</p>
+                    <h1 class="text-4xl md:text-5xl font-light text-gray-800 leading-tight">
+                        Every piece bears its <span class="text-brand font-normal">maker's fingerprint</span>.
+                    </h1>
+                    <p id="home-greeting" class="text-gray-500 max-w-xl mx-auto md:mx-0 mt-6 text-sm leading-relaxed">
+                        Handmade masks, textiles, paintings and more, bought directly from the Bhutanese artisans who make them.
+                    </p>
+                    <form id="home-search-form" class="flex gap-2 w-full max-w-md mx-auto mt-8">
+                        <input type="search" id="home-search" placeholder="Search artworks..."
+                            class="flex-1 min-w-0 border border-gray-300 rounded px-4 py-2 bg-white focus:outline-none focus:border-brand">
+                        <button type="submit" class="px-6 py-2 bg-gray-900 text-white text-sm rounded hover:bg-gray-700 transition">Search</button>
+                    </form>
+                    <div class="flex flex-wrap gap-4 justify-center mt-6">
+                        <button onclick="openShop()" class="px-8 py-3 bg-brand text-white text-sm font-bold rounded shadow hover:bg-opacity-90 transition">Shop all artworks</button>
+                        <button onclick="showArtists()" class="px-8 py-3 border border-gray-300 text-gray-700 text-sm font-bold rounded hover:bg-white transition">Meet the artisans</button>
+                    </div>
                 </div>
-            </div>
-
-            <!-- Trust bar -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 border-b border-gray-200 text-center text-xs text-gray-600">
-                <div class="py-4 px-4"><span class="font-bold text-gray-800">Direct from the workshop</span> · no middlemen</div>
-                <div class="py-4 px-4 sm:border-x border-gray-200"><span class="font-bold text-gray-800">Verified artisans</span> · every maker checked</div>
-                <div class="py-4 px-4"><span class="font-bold text-gray-800">Fair to the maker</span> · flat 8% commission</div>
-            </div>
-
-            <!-- Shop by craft -->
-            <div class="px-6 md:px-10 pt-10 max-w-6xl mx-auto w-full">
-                <p class="text-xs uppercase tracking-widest text-brand font-semibold mb-1">— Browse</p>
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">Shop by craft</h2>
-                <div id="home-categories" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3"></div>
+                <div id="hero-slideshow" class="hero-slideshow md:col-span-2" aria-roledescription="carousel" aria-label="Photos of Bhutan"></div>
             </div>
 
             <!-- Featured products -->
             <div class="p-6 md:p-10 max-w-6xl mx-auto w-full">
                 <div class="flex justify-between items-end mb-6">
                     <div>
-                        <p class="text-xs uppercase tracking-widest text-brand font-semibold mb-1">— Just listed</p>
+                        <p class="text-xs uppercase tracking-widest text-brand font-semibold mb-1">— Most loved</p>
                         <h2 class="text-2xl font-bold text-gray-800">Featured artworks</h2>
                     </div>
                     <span class="text-xs text-gray-500 hover:underline cursor-pointer" onclick="openShop()">View all →</span>
                 </div>
                 <div id="home-products" class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"></div>
+            </div>
+
+            <!-- Shop by craft -->
+            <div class="px-6 md:px-10 pb-12 max-w-6xl mx-auto w-full">
+                <p class="text-xs uppercase tracking-widest text-brand font-semibold mb-1">— Browse</p>
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Shop by craft</h2>
+                <div id="home-categories" class="flex gap-3 overflow-x-auto nav-scroll pb-1 md:grid md:grid-cols-8 md:overflow-visible"></div>
             </div>
 
             <!-- Featured artisans -->
@@ -405,6 +417,13 @@
                     <p class="text-sm text-gray-400">Open your workshop on Labzo and reach buyers across Bhutan and beyond.</p>
                 </div>
                 <button onclick="logout(); showScreen('artist-step1')" class="px-8 py-3 bg-brand text-white text-sm font-bold rounded hover:bg-opacity-90 transition whitespace-nowrap">Become a seller →</button>
+            </div>
+
+            <!-- Trust bar -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 border-t border-gray-200 bg-white text-center text-xs text-gray-600">
+                <div class="py-4 px-4"><span class="font-bold text-gray-800">Direct from the workshop</span> · no middlemen</div>
+                <div class="py-4 px-4 sm:border-x border-gray-200"><span class="font-bold text-gray-800">Verified artisans</span> · every maker checked</div>
+                <div class="py-4 px-4"><span class="font-bold text-gray-800">Fair to the maker</span> · flat 8% commission</div>
             </div>
 
             <footer data-footer></footer>

@@ -1,6 +1,12 @@
 // controllers/wishlistController.js
 const pool = require('../database');
 
+// Saving a product is "liking" it — its like count is how many buyers saved it
+async function likeCount(productId) {
+    const r = await pool.query('SELECT COUNT(*)::int AS n FROM wishlist WHERE product_id = $1', [productId]);
+    return r.rows[0].n;
+}
+
 async function getWishlist(req, res) {
     const buyerId = req.user.id;
     try {
@@ -34,7 +40,10 @@ async function addToWishlist(req, res) {
             ON CONFLICT (buyer_id, product_id) DO NOTHING
             RETURNING *
         `, [buyerId, product_id]);
-        res.status(201).json({ item: result.rows[0] || { message: 'Already saved' } });
+        res.status(201).json({
+            item: result.rows[0] || { message: 'Already saved' },
+            like_count: await likeCount(product_id),
+        });
     } catch (err) {
         console.error('addToWishlist error:', err);
         res.status(500).json({ error: 'Server error' });
@@ -50,7 +59,7 @@ async function removeFromWishlist(req, res) {
             [buyerId, productId]
         );
         if (result.rowCount === 0) return res.status(404).json({ error: 'Not in wishlist' });
-        res.json({ removed: true });
+        res.json({ removed: true, like_count: await likeCount(productId) });
     } catch (err) {
         console.error('removeFromWishlist error:', err);
         res.status(500).json({ error: 'Server error' });
