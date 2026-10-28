@@ -130,8 +130,9 @@ async function me(req, res) {
     if (!map) return res.status(400).json({ error: 'Invalid role' });
 
     const cols = {
-        buyer: 'name, email, photo_url, status, created_at',
-        artisan: 'name, email, phone, technique, craft_description, workshop_name, location, photo_url, status, created_at',
+        buyer: 'name, email, photo_url, phone, address, city, dzongkhag, status, created_at',
+        artisan: 'name, email, phone, technique, craft_description, workshop_name, location, photo_url, '
+               + 'bank_name, account_name, account_number, status, created_at',
         admin: "name, email, 'active' AS status, created_at",
     }[role];
 
@@ -151,7 +152,9 @@ async function me(req, res) {
 // ---------------------------------------------------------------
 // PUT /api/auth/me   (requires token)
 // body: { name?, photo_url?, current_password?, new_password?,
-//         artisans also: phone?, technique?, craft_description?, workshop_name?, location? }
+//         buyers also: phone?, address?, city?, dzongkhag?   (pre-fill checkout)
+//         artisans also: phone?, technique?, craft_description?, workshop_name?, location?,
+//                        bank_name?, account_name?, account_number?   (buyers pay into this) }
 // ---------------------------------------------------------------
 async function updateMe(req, res) {
     const { id, role } = req.user;
@@ -160,6 +163,7 @@ async function updateMe(req, res) {
 
     const {
         name, photo_url, phone, technique, craft_description, workshop_name, location,
+        address, city, dzongkhag, bank_name, account_name, account_number,
         current_password, new_password,
     } = req.body;
     if (name !== undefined && !String(name).trim()) {
@@ -194,17 +198,26 @@ async function updateMe(req, res) {
                     craft_description = COALESCE($4, craft_description),
                     workshop_name     = COALESCE($5, workshop_name),
                     location          = COALESCE($6, location),
-                    photo_url         = COALESCE($7, photo_url)
-                WHERE artisan_id = $8
+                    photo_url         = COALESCE($7, photo_url),
+                    bank_name         = COALESCE($8, bank_name),
+                    account_name      = COALESCE($9, account_name),
+                    account_number    = COALESCE($10, account_number)
+                WHERE artisan_id = $11
             `, [name?.trim() || null, phone ?? null, technique ?? null, craft_description ?? null,
-                workshop_name ?? null, location ?? null, photo_url ?? null, id]);
+                workshop_name ?? null, location ?? null, photo_url ?? null,
+                bank_name?.trim() ?? null, account_name?.trim() ?? null, account_number?.trim() ?? null, id]);
         } else if (role === 'buyer') {
             await pool.query(`
                 UPDATE buyer SET
                     name      = COALESCE($1, name),
-                    photo_url = COALESCE($2, photo_url)
-                WHERE buyer_id = $3
-            `, [name?.trim() || null, photo_url ?? null, id]);
+                    photo_url = COALESCE($2, photo_url),
+                    phone     = COALESCE($3, phone),
+                    address   = COALESCE($4, address),
+                    city      = COALESCE($5, city),
+                    dzongkhag = COALESCE($6, dzongkhag)
+                WHERE buyer_id = $7
+            `, [name?.trim() || null, photo_url ?? null, phone?.trim() ?? null, address?.trim() ?? null,
+                city?.trim() ?? null, dzongkhag ?? null, id]);
         } else {
             await pool.query(
                 'UPDATE admin SET name = COALESCE($1, name) WHERE admin_id = $2',

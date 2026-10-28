@@ -143,3 +143,31 @@ END $$;
 
 -- Like counts (COUNT of wishlist rows per product) are read on every shop load
 CREATE INDEX IF NOT EXISTS idx_wishlist_product ON wishlist (product_id);
+
+-- ------------------------------------------------------------
+-- One-page checkout: the buyer pays the artisan directly while
+-- placing the order (no separate approve-then-pay round trip).
+-- ------------------------------------------------------------
+
+-- Buyer's saved contact/delivery details, used to pre-fill checkout
+ALTER TABLE buyer ADD COLUMN IF NOT EXISTS phone     VARCHAR(40);
+ALTER TABLE buyer ADD COLUMN IF NOT EXISTS address   VARCHAR(255);
+ALTER TABLE buyer ADD COLUMN IF NOT EXISTS city      VARCHAR(120);
+ALTER TABLE buyer ADD COLUMN IF NOT EXISTS dzongkhag VARCHAR(80);
+
+-- Artisan's bank account — buyers transfer the order total here
+ALTER TABLE artisan ADD COLUMN IF NOT EXISTS bank_name      VARCHAR(80);
+ALTER TABLE artisan ADD COLUMN IF NOT EXISTS account_name   VARCHAR(120);
+ALTER TABLE artisan ADD COLUMN IF NOT EXISTS account_number VARCHAR(40);
+
+-- Each order keeps a copy of where it ships (the buyer may move later)
+-- and Labzo's 8% commission, which the artisan owes Labzo
+ALTER TABLE "order" ADD COLUMN IF NOT EXISTS ship_name      VARCHAR(120);
+ALTER TABLE "order" ADD COLUMN IF NOT EXISTS ship_phone     VARCHAR(40);
+ALTER TABLE "order" ADD COLUMN IF NOT EXISTS ship_address   VARCHAR(255);
+ALTER TABLE "order" ADD COLUMN IF NOT EXISTS ship_city      VARCHAR(120);
+ALTER TABLE "order" ADD COLUMN IF NOT EXISTS ship_dzongkhag VARCHAR(80);
+ALTER TABLE "order" ADD COLUMN IF NOT EXISTS commission     NUMERIC(10,2);
+
+-- Bank journal / reference number from the buyer's transfer receipt
+ALTER TABLE payment ADD COLUMN IF NOT EXISTS journal_no VARCHAR(60);

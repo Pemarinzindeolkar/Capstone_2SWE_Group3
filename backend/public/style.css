@@ -97,7 +97,9 @@ body {
 .pill-pending   { background: #FEF3C7; color: #92400E; }
 .pill-paid, .pill-verified, .pill-delivered { background: #D1FAE5; color: #065F46; }
 .pill-shipped   { background: #DBEAFE; color: #1E40AF; }
-.pill-approved  { background: #E0E7FF; color: #3730A3; }
+.pill-approved, .pill-payment_submitted { background: #E0E7FF; color: #3730A3; }
+.pill-refund_due { background: #FEF3C7; color: #92400E; }
+.pill-refunded   { background: #E5E7EB; color: #374151; }
 .pill-cancelled, .pill-rejected { background: #FEE2E2; color: #991B1B; }
 .pill-sold_out  { background: #E5E7EB; color: #374151; }
 .pill-available { background: #D1FAE5; color: #065F46; }
@@ -186,8 +188,9 @@ body {
 
 /* Nav links: pill highlight for the current page, soft hover for the rest */
 .nav-link {
+    flex-shrink: 0;
     cursor: pointer;
-    padding: 0.4rem 0.85rem;
+    padding: 0.35rem 0.85rem;
     border-radius: 9999px;
     transition: background-color 0.2s;
 }

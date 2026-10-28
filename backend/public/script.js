@@ -84,6 +84,9 @@ const DZONGKHAGS = [
 const DEFAULT_STOCK = { paintings: 1, textiles: 4 };
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 
+// Where artisans pay Labzo's 8% commission
+const LABZO_ACCOUNT = 'Labzo Marketplace · BoB A/C 200 123 456';
+
 // Small bits of app state
 const state = {
     bagCount: 0,
@@ -117,7 +120,7 @@ function categoryLabel(value) {
 
 function pill(status) {
     const s = String(status || 'pending');
-    return `<span class="pill pill-${esc(s)}">${esc(s.replace('_', ' '))}</span>`;
+    return `<span class="pill pill-${esc(s)}">${esc(s.replace(/_/g, ' '))}</span>`;
 }
 
 function verifiedBadge(status) {
@@ -279,8 +282,8 @@ function renderNav(header) {
 
     header.innerHTML = `
         <div class="w-full bg-brand px-4 md:px-8 py-4 md:py-5 text-white shadow-md">
-            <div class="flex items-center gap-2 md:gap-3 text-sm md:text-base font-medium whitespace-nowrap overflow-x-auto nav-scroll">
-                <span class="flex items-center gap-2 text-xl md:text-2xl font-bold tracking-widest cursor-pointer mr-3 md:mr-5" onclick="goHome()">
+            <div class="flex items-center gap-2 md:gap-3 text-base md:text-lg font-medium whitespace-nowrap overflow-x-auto nav-scroll">
+                <span class="flex flex-shrink-0 items-center gap-2 text-2xl md:text-3xl font-bold tracking-widest cursor-pointer mr-3 md:mr-5" onclick="goHome()">
                     <img src="logo.png" alt="" class="w-9 h-9 md:w-11 md:h-11 object-contain"><span class="font-brand">LABZO</span>
                 </span>
                 ${links.left.map(link).join('')}
@@ -1049,8 +1052,8 @@ async function renderBag() {
                         <span class="font-bold">Total</span>
                         <span class="font-bold text-xl text-brand">${money(cart.total)}</span>
                     </div>
-                    ${artisanCount > 1 ? `<p class="text-xs text-gray-500 mb-4">Your bag has pieces from ${artisanCount} artisans, so it will be split into ${artisanCount} orders.</p>` : ''}
-                    <button onclick="checkout(this)" class="w-full bg-gray-900 text-white py-3 rounded text-sm font-semibold hover:bg-gray-700 transition disabled:opacity-50">Checkout</button>
+                    ${artisanCount > 1 ? `<p class="text-xs text-gray-500 mb-4">Your bag has pieces from ${artisanCount} artisans, so it becomes ${artisanCount} orders — you pay each artisan directly at checkout.</p>` : ''}
+                    <button onclick="openCheckout()" class="w-full bg-gray-900 text-white py-3 rounded text-sm font-semibold hover:bg-gray-700 transition disabled:opacity-50">Checkout</button>
                     <button onclick="openShop()" class="w-full mt-3 text-xs text-gray-500 hover:underline">Continue shopping</button>
                 </div>
             </div>`;
@@ -1077,16 +1080,165 @@ async function removeItem(itemId) {
     } catch (err) { toast(err.message, 'error'); }
 }
 
-async function checkout(btn) {
-    if (!confirm('Place this order? The artisan approves it first — you pay after that.')) return;
+// ============================================================
+// CHECKOUT — delivery details + payment on one page.
+// The buyer pays each artisan in the bag directly (their bank account is
+// shown), then attaches the journal number and receipt. Saved details from
+// the buyer's account pre-fill the form.
+// ============================================================
+let checkoutGroups = [];
+
+async function openCheckout() {
+    if (!requireBuyer()) return;
+    showScreen('checkout-screen');
+    const form = document.getElementById('checkout-form');
+    form.innerHTML = '<p class="text-gray-500 col-span-full text-center py-10">Loading...</p>';
+    try {
+        const info = await API.get('/api/orders/checkout-info');
+        if (!info.groups.length) return openBag();
+        checkoutGroups = info.groups;
+        renderCheckout(info);
+    } catch (err) {
+        form.innerHTML = `<p class="text-red-500 col-span-full">${esc(err.message)}</p>`;
+    }
+}
+
+function renderCheckout({ buyer, groups, total }) {
+    const field = (label, input) => `
+        <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">${label}</label>
+            ${input}
+        </div>`;
+    const dzOptions = '<option value="">Select...</option>' + DZONGKHAGS.map(d =>
+        `<option ${d === buyer.dzongkhag ? 'selected' : ''}>${esc(d)}</option>`).join('');
+    const blocked = groups.filter(g => !g.payable);
+    const itemCount = groups.reduce((n, g) => n + g.items.reduce((m, i) => m + i.quantity, 0), 0);
+    const multi = groups.length > 1;
+
+    const paymentBlock = (g, i) => `
+        <div class="border border-gray-200 rounded-lg p-5 ${g.payable ? '' : 'bg-red-50 border-red-200'}">
+            <div class="flex justify-between items-baseline gap-4 mb-3">
+                <p class="font-bold text-gray-800">${multi ? `${i + 1}. ` : ''}Pay ${esc(g.artisan_name)}</p>
+                <p class="font-bold text-brand text-lg whitespace-nowrap">${money(g.total)}</p>
+            </div>
+            ${g.payable ? `
+                <div class="bg-cream rounded p-4 text-sm mb-4 space-y-1">
+                    <p><span class="text-gray-500">Bank:</span> <span class="font-semibold">${esc(g.bank_name || '—')}</span></p>
+                    <p><span class="text-gray-500">Account name:</span> <span class="font-semibold">${esc(g.account_name || g.artisan_name)}</span></p>
+                    <p class="flex items-center gap-2 flex-wrap"><span class="text-gray-500">Account no:</span>
+                        <span class="font-semibold font-mono tracking-wide">${esc(g.account_number)}</span>
+                        <button type="button" onclick="copyText('${esc(g.account_number)}', this)" class="text-xs text-brand font-semibold hover:underline">Copy</button></p>
+                    <p class="text-xs text-gray-500 pt-1">Transfer exactly ${money(g.total)} by mBoB, BNB mPay or any bank app.</p>
+                </div>
+                <div class="grid sm:grid-cols-2 gap-4">
+                    ${field('Journal number', `<input type="text" name="journal-${g.artisan_id}" required maxlength="60" placeholder="e.g. 1234567" class="input-field">`)}
+                    ${field('Receipt screenshot', `<input type="file" name="receipt-${g.artisan_id}" required accept="image/*" class="input-field text-sm file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-gray-900 file:text-white file:text-xs">`)}
+                </div>`
+            : `<p class="text-sm text-red-700">${esc(g.artisan_name)} hasn't added a bank account yet, so these pieces can't be paid for right now. Remove them from your bag to check out the rest.</p>`}
+        </div>`;
+
+    const summaryItems = groups.flatMap(g => g.items).map(it => `
+        <div class="flex items-center gap-3">
+            <div class="relative w-14 h-14 rounded overflow-hidden bg-gray-100 flex-shrink-0">
+                ${img(it.image_url)}
+                <span class="absolute -top-1 -right-1 bg-gray-800 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">${it.quantity}</span>
+            </div>
+            <p class="flex-1 text-sm text-gray-800 truncate">${esc(it.title)}</p>
+            <p class="text-sm font-semibold">${money(it.price * it.quantity)}</p>
+        </div>`).join('');
+
+    document.getElementById('checkout-form').innerHTML = `
+        <div class="lg:col-span-3 space-y-6">
+            <section class="bg-white rounded-lg p-6 md:p-8 shadow-sm space-y-4">
+                <h2 class="text-xl font-bold text-gray-800">Customer details</h2>
+                ${field('Email', `<input type="email" value="${esc(buyer.email)}" disabled class="input-field bg-gray-50 text-gray-500">`)}
+                <div class="grid sm:grid-cols-2 gap-4">
+                    ${field('Full name', `<input type="text" name="name" required value="${esc(buyer.name)}" autocomplete="name" class="input-field">`)}
+                    ${field('Phone', `<input type="tel" name="phone" required value="${esc(buyer.phone || '')}" placeholder="+975 17 123 456" autocomplete="tel" class="input-field">`)}
+                </div>
+            </section>
+
+            <section class="bg-white rounded-lg p-6 md:p-8 shadow-sm space-y-4">
+                <h2 class="text-xl font-bold text-gray-800">Delivery details</h2>
+                <div class="grid sm:grid-cols-2 gap-4">
+                    ${field('Dzongkhag', `<select name="dzongkhag" required class="input-field">${dzOptions}</select>`)}
+                    ${field('Town / City', `<input type="text" name="city" required value="${esc(buyer.city || '')}" autocomplete="address-level2" class="input-field">`)}
+                </div>
+                ${field('Address', `<input type="text" name="address" required value="${esc(buyer.address || '')}" placeholder="House / building, street, landmark" autocomplete="street-address" class="input-field">`)}
+                <label class="flex items-center gap-2 text-sm text-gray-600">
+                    <input type="checkbox" name="save_details" checked class="accent-brand w-4 h-4"> Save these details for next time
+                </label>
+            </section>
+
+            <section class="bg-white rounded-lg p-6 md:p-8 shadow-sm space-y-4">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Payment</h2>
+                    <p class="text-sm text-gray-500">${multi
+                        ? `Your bag has pieces from ${groups.length} artisans — pay each one directly into their own account.`
+                        : 'Pay the artisan directly into their account, then add the receipt.'}</p>
+                </div>
+                ${groups.map(paymentBlock).join('')}
+            </section>
+        </div>
+
+        <aside class="lg:col-span-2">
+            <div class="bg-white rounded-lg p-6 shadow-sm lg:sticky lg:top-6 space-y-4">
+                <h2 class="text-lg font-bold text-gray-800">Order summary <span class="font-normal text-gray-500 text-sm">(${itemCount} item${itemCount === 1 ? '' : 's'})</span></h2>
+                <div class="space-y-3 max-h-80 overflow-y-auto">${summaryItems}</div>
+                <div class="border-t border-gray-100 pt-4 space-y-2 text-sm">
+                    <div class="flex justify-between"><span class="text-gray-600">Subtotal</span><span>${money(total)}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-600">Delivery</span><span class="text-gray-500">Arranged by artisan</span></div>
+                    <div class="flex justify-between text-lg font-bold pt-2"><span>Total</span><span class="text-brand">${money(total)}</span></div>
+                </div>
+                <button type="submit" ${blocked.length ? 'disabled' : ''} class="w-full bg-gray-900 text-white py-4 rounded text-base font-semibold hover:bg-gray-700 transition disabled:opacity-40 disabled:cursor-not-allowed">Place order</button>
+                <p class="text-xs text-gray-500 text-center">${blocked.length
+                    ? 'Remove the pieces that can\'t be paid for yet to continue.'
+                    : 'The artisan checks your payment, then ships your piece.'}</p>
+            </div>
+        </aside>`;
+}
+
+async function submitCheckout(e) {
+    e.preventDefault();
+    const form = e.target;
+    if (!form.reportValidity()) return;
+    const v = name => form.elements[name]?.value.trim() || '';
+    const btn = form.querySelector('button[type=submit]');
+
     await withBusy(btn, 'Placing order...', async () => {
         try {
-            const result = await API.post('/api/orders/checkout');
+            // Upload each receipt, then place every order in one request
+            const payments = [];
+            for (const g of checkoutGroups) {
+                const file = form.elements['receipt-' + g.artisan_id].files[0];
+                if (file.size > MAX_IMAGE_BYTES) throw new Error('Receipt for ' + g.artisan_name + ' is larger than 5MB');
+                payments.push({
+                    artisan_id: g.artisan_id,
+                    journal_no: v('journal-' + g.artisan_id),
+                    proof_url: await uploadImage(file),
+                });
+            }
+            const result = await API.post('/api/orders/checkout', {
+                delivery: { name: v('name'), phone: v('phone'), address: v('address'), city: v('city'), dzongkhag: v('dzongkhag') },
+                save_details: form.elements.save_details.checked,
+                payments,
+            });
             state.bagCount = 0;
-            toast(result.orders.length + ' order(s) sent to the artisan for approval. You can pay once they approve.', 'success');
+            toast(result.orders.length > 1
+                ? result.orders.length + ' orders placed — the artisans will confirm your payments'
+                : 'Order placed — the artisan will confirm your payment', 'success');
             showOrders();
         } catch (err) { toast(err.message, 'error'); }
     });
+}
+
+async function copyText(text, btn) {
+    try {
+        await navigator.clipboard.writeText(text);
+        const old = btn.textContent;
+        btn.textContent = 'Copied ✓';
+        setTimeout(() => { btn.textContent = old; }, 1500);
+    } catch { toast('Copy failed — please select the number manually', 'error'); }
 }
 
 // ============================================================
@@ -1095,29 +1247,36 @@ async function checkout(btn) {
 let paymentOrderId = null;
 
 function paymentSection(o) {
-    if (o.status === 'cancelled') return '';
-    const proofLink = o.proof_url ? `<a href="${esc(o.proof_url)}" target="_blank" class="text-brand hover:underline">View screenshot</a>` : '';
+    const proofLink = o.proof_url ? `<a href="${esc(o.proof_url)}" target="_blank" class="text-brand hover:underline">View receipt</a>` : '';
     const cancelBtn = `<button onclick="cancelOrder(${o.order_id})" class="px-4 py-2 border border-gray-300 text-gray-600 text-xs rounded hover:bg-gray-50 transition">Cancel order</button>`;
+    const reuploadBtn = `<button onclick="choosePaymentProof(${o.order_id})" class="px-4 py-2 bg-brand text-white text-xs font-semibold rounded hover:bg-opacity-90 transition">Upload new receipt</button>`;
+    const account = o.account_number
+        ? `<span class="font-semibold">${esc(o.bank_name || 'Bank')} · A/C ${esc(o.account_number)}</span>` : 'the artisan';
 
-    if (o.status === 'pending') {
-        return `<p class="text-sm text-amber-700 mb-3">Waiting for ${esc(o.artisan_name)} to approve your order. You can pay once they approve it.</p>
-            <div class="flex flex-wrap gap-3">${cancelBtn}</div>`;
+    if (o.status === 'cancelled') {
+        if (o.payment_status === 'refund_due') return `<p class="text-sm text-amber-700">Order cancelled — ${esc(o.artisan_name)} will refund your payment.</p>`;
+        if (o.payment_status === 'refunded') return `<p class="text-sm text-gray-600">Order cancelled — refunded ✓</p>`;
+        return '';
     }
-    if (o.status !== 'approved') {
+    if (['paid', 'shipped', 'delivered'].includes(o.status)) {
         return `<p class="text-sm text-green-700 font-semibold">✓ Payment confirmed ${proofLink ? '· ' + proofLink : ''}</p>`;
     }
-    if (o.payment_status === 'pending') {
-        return `<p class="text-sm text-amber-700">Payment screenshot submitted — waiting for the artisan or Labzo to confirm · ${proofLink}
-            · <span class="text-gray-500 hover:underline cursor-pointer" onclick="choosePaymentProof(${o.order_id})">Replace</span></p>`;
+    // Older approve-then-pay orders
+    if (o.status === 'pending') {
+        return `<p class="text-sm text-amber-700 mb-3">Waiting for ${esc(o.artisan_name)} to approve your order.</p>
+            <div class="flex flex-wrap gap-3">${cancelBtn}</div>`;
     }
-    const intro = o.payment_status === 'rejected'
-        ? '<p class="text-sm text-red-600 mb-2">Your payment screenshot was rejected. Please upload a clear screenshot of the receipt.</p>'
-        : `<p class="text-sm text-gray-700 mb-2"><span class="font-semibold">Approved!</span> Transfer ${money(o.total)} with remark <span class="font-semibold">#${o.order_id}</span>, then upload the receipt screenshot.</p>`;
-    return `${intro}
-        <div class="flex flex-wrap gap-3">
-            <button onclick="choosePaymentProof(${o.order_id})" class="px-4 py-2 bg-brand text-white text-xs font-semibold rounded hover:bg-opacity-90 transition">Upload payment screenshot</button>
-            ${cancelBtn}
-        </div>`;
+    if (o.payment_status === 'rejected') {
+        return `<p class="text-sm text-red-600 mb-2">${esc(o.artisan_name)} couldn't match your receipt to a payment. Check your transfer to ${account} and upload the correct receipt.</p>
+            <div class="flex flex-wrap gap-3">${reuploadBtn}${cancelBtn}</div>`;
+    }
+    if (o.payment_status === 'pending') {
+        return `<p class="text-sm text-amber-700 mb-3">Payment sent${o.journal_no ? ` (journal no. ${esc(o.journal_no)})` : ''} — waiting for ${esc(o.artisan_name)} to confirm it · ${proofLink}</p>
+            <div class="flex flex-wrap gap-3">${cancelBtn}</div>`;
+    }
+    // approved old-style order with no receipt yet
+    return `<p class="text-sm text-gray-700 mb-2">Transfer ${money(o.total)} to ${account} and upload the receipt.</p>
+        <div class="flex flex-wrap gap-3">${reuploadBtn.replace('Upload new receipt', 'Upload receipt')}${cancelBtn}</div>`;
 }
 
 async function showOrders() {
@@ -1155,6 +1314,7 @@ async function showOrders() {
                             <span class="text-gray-500">${money(i.price * i.quantity)}</span>
                         </div>`).join('')}
                 </div>
+                ${o.ship_address ? `<p class="text-xs text-gray-500 mb-3">Delivering to ${esc([o.ship_address, o.ship_city, o.ship_dzongkhag].filter(Boolean).join(', '))}</p>` : ''}
                 ${paymentSection(o)}
             </div>`).join('');
     } catch (err) {
@@ -1162,30 +1322,36 @@ async function showOrders() {
     }
 }
 
+let paymentJournalNo = null;
+
 function choosePaymentProof(orderId) {
+    const journal = prompt('Journal number of your transfer (from the bank receipt):');
+    if (journal === null) return;
     paymentOrderId = orderId;
+    paymentJournalNo = journal.trim();
     document.getElementById('payment-file').click();
 }
 
 async function cancelOrder(orderId) {
-    if (!confirm('Cancel order #' + orderId + '?')) return;
+    if (!confirm('Cancel order #' + orderId + '? If you already paid, the artisan will refund you.')) return;
     try {
-        await API.put('/api/orders/' + orderId + '/cancel');
-        toast('Order cancelled', 'info');
+        const { refundDue } = await API.put('/api/orders/' + orderId + '/cancel');
+        toast(refundDue ? 'Order cancelled — the artisan will refund your payment' : 'Order cancelled', 'info');
         showOrders();
     } catch (err) { toast(err.message, 'error'); }
 }
 
 function initOrders() {
+    document.getElementById('checkout-form').addEventListener('submit', submitCheckout);
     document.getElementById('payment-file').addEventListener('change', async (e) => {
         const file = e.target.files[0];
         e.target.value = '';
         if (!file || !paymentOrderId) return;
         try {
-            toast('Uploading payment screenshot...', 'info');
+            toast('Uploading receipt...', 'info');
             const proof_url = await uploadImage(file);
-            await API.post('/api/orders/' + paymentOrderId + '/payment', { proof_url });
-            toast('Payment screenshot submitted ✓', 'success');
+            await API.post('/api/orders/' + paymentOrderId + '/payment', { proof_url, journal_no: paymentJournalNo });
+            toast('Receipt sent to the artisan ✓', 'success');
             showOrders();
         } catch (err) { toast(err.message, 'error'); }
     });
@@ -1300,6 +1466,13 @@ function fillProfile(user) {
     av.innerHTML = user.photo_url ? img(user.photo_url) : esc((user.name || '?').charAt(0).toUpperCase());
 
     document.getElementById('profile-artist-fields').classList.toggle('hidden', !isArtist);
+    document.getElementById('profile-buyer-fields').classList.toggle('hidden', user.role !== 'buyer');
+    if (user.role === 'buyer') {
+        document.getElementById('profile-buyer-phone').value = user.phone || '';
+        document.getElementById('profile-buyer-dzongkhag').value = user.dzongkhag || '';
+        document.getElementById('profile-buyer-city').value = user.city || '';
+        document.getElementById('profile-buyer-address').value = user.address || '';
+    }
     document.getElementById('profile-gallery-card').classList.toggle('hidden', !isArtist);
     // Admin accounts have no photo column
     av.parentElement.style.pointerEvents = user.role === 'admin' ? 'none' : '';
@@ -1309,6 +1482,9 @@ function fillProfile(user) {
         document.getElementById('profile-workshop').value = user.workshop_name || '';
         document.getElementById('profile-location').value = user.location || '';
         document.getElementById('profile-bio').value = user.craft_description || '';
+        document.getElementById('profile-bank').value = user.bank_name || '';
+        document.getElementById('profile-account-name').value = user.account_name || '';
+        document.getElementById('profile-account-number').value = user.account_number || '';
         const sel = document.getElementById('profile-technique');
         // Keep older free-text crafts selectable
         if (user.technique && ![...sel.options].some(o => o.value === user.technique)) {
@@ -1373,6 +1549,16 @@ function initProfile() {
                 location: document.getElementById('profile-location').value.trim(),
                 technique: document.getElementById('profile-technique').value,
                 craft_description: document.getElementById('profile-bio').value.trim(),
+                bank_name: document.getElementById('profile-bank').value,
+                account_name: document.getElementById('profile-account-name').value.trim(),
+                account_number: document.getElementById('profile-account-number').value.replace(/\s+/g, ''),
+            });
+        } else if (API.getUser()?.role === 'buyer') {
+            Object.assign(body, {
+                phone: document.getElementById('profile-buyer-phone').value.trim(),
+                dzongkhag: document.getElementById('profile-buyer-dzongkhag').value,
+                city: document.getElementById('profile-buyer-city').value.trim(),
+                address: document.getElementById('profile-buyer-address').value.trim(),
             });
         }
         await withBusy(btn, 'Saving...', async () => {
@@ -1531,13 +1717,22 @@ async function loadArtistDashboard() {
         document.getElementById('artist-status').textContent = status;
         document.getElementById('artist-product-count').textContent = products.count || 0;
         document.getElementById('artist-order-count').textContent = orders.count || 0;
+        // Orders waiting on the artist: approve (old flow), confirm a receipt, ship, or refund
         document.getElementById('artist-pending-count').textContent =
             orders.orders.filter(o => o.status === 'pending' || o.status === 'paid' ||
-                (o.status === 'approved' && o.payment_status === 'pending')).length;
-        const earned = orders.orders
-            .filter(o => ['paid', 'shipped', 'delivered'].includes(o.status))
-            .reduce((s, o) => s + Number(o.total), 0) * 0.92;
-        document.getElementById('artist-earnings').textContent = money(earned);
+                (['approved', 'payment_submitted'].includes(o.status) && o.payment_status === 'pending') ||
+                (o.status === 'cancelled' && o.payment_status === 'refund_due')).length;
+
+        // Buyers pay the artist directly; Labzo's 8% is owed back to Labzo
+        const paidOrders = orders.orders.filter(o => ['paid', 'shipped', 'delivered'].includes(o.status));
+        const commissionOf = o => Number(o.commission ?? o.total * 0.08);
+        const sales = paidOrders.reduce((s, o) => s + Number(o.total), 0);
+        const commission = paidOrders.reduce((s, o) => s + commissionOf(o), 0);
+        document.getElementById('artist-earnings').textContent = money(sales - commission);
+        document.getElementById('artist-commission-note').textContent = commission
+            ? `After Labzo's 8% (${money(commission)}) — pay it to ${LABZO_ACCOUNT}`
+            : 'Paid orders, after Labzo\'s 8%';
+        document.getElementById('artist-bank-banner').classList.toggle('hidden', Boolean(me.user.account_number));
 
         const banner = document.getElementById('artist-verify-banner');
         banner.classList.toggle('hidden', status === 'verified');
@@ -1662,6 +1857,7 @@ async function showArtistOrders() {
                         <p class="text-xs text-gray-400 uppercase tracking-wide">Order #${o.order_id} · ${fmtDate(o.created_at)}</p>
                         <p class="font-bold text-gray-800">${esc(o.buyer_name)}</p>
                         <p class="text-xs text-gray-500"><a href="mailto:${esc(o.buyer_email)}" class="hover:underline">${esc(o.buyer_email)}</a></p>
+                        ${o.ship_address ? `<p class="text-xs text-gray-600 mt-2"><span class="font-semibold">Ship to:</span> ${esc(o.ship_name)} · ${esc(o.ship_phone)}<br>${esc([o.ship_address, o.ship_city, o.ship_dzongkhag].filter(Boolean).join(', '))}</p>` : ''}
                     </div>
                     <div class="text-right">
                         ${pill(o.status)}
@@ -1684,7 +1880,7 @@ async function showArtistOrders() {
     }
 }
 
-// What the artist can do next, depending on the order and its payment screenshot
+// What the artist can do next, depending on the order and its payment receipt
 function artistOrderActions(o) {
     const btn = (label, onclick, cls) =>
         `<button onclick="${onclick}" class="px-4 py-2 rounded text-xs font-semibold transition disabled:opacity-50 ${cls}">${label}</button>`;
@@ -1692,44 +1888,54 @@ function artistOrderActions(o) {
     const danger = 'border border-red-300 text-red-600 hover:bg-red-50';
     const status = (s, label, cls) => btn(label, `updateOrderStatus(${o.order_id}, '${s}', this)`, cls);
     const wrap = (inner) => `<div class="pt-4 border-t border-gray-100">${inner}</div>`;
+    const receipt = `
+        <p class="text-xs font-bold uppercase tracking-wide text-gray-700 mb-2">Payment receipt${o.journal_no ? ` · journal no. <span class="font-mono normal-case">${esc(o.journal_no)}</span>` : ''}</p>
+        ${o.proof_url ? `<a href="${esc(o.proof_url)}" target="_blank" class="block w-40 h-40 rounded overflow-hidden bg-gray-100 border border-gray-200 mb-3" title="Open full size">${img(o.proof_url, 'w-full h-full object-contain')}</a>` : ''}`;
 
     switch (o.status) {
-        case 'pending':
+        case 'pending': // older approve-then-pay orders
             return wrap(`
-                <p class="text-xs text-gray-500 mb-3">Approve this order so the buyer can pay and upload a payment screenshot.</p>
+                <p class="text-xs text-gray-500 mb-3">Approve this order so the buyer can pay.</p>
                 <div class="flex flex-wrap gap-2">${status('approved', 'Approve order', primary)}${status('cancelled', 'Decline', danger)}</div>`);
         case 'approved':
+        case 'payment_submitted':
             if (o.payment_status !== 'pending') {
                 return wrap(`
                     <p class="text-xs text-gray-500 mb-3">${o.payment_status === 'rejected'
-                        ? 'Screenshot rejected — waiting for the buyer to upload a new one.'
-                        : 'Approved — waiting for the buyer to pay and upload a screenshot.'}</p>
+                        ? 'Receipt rejected — waiting for the buyer to send the correct one.'
+                        : 'Waiting for the buyer to pay.'}</p>
                     <div class="flex flex-wrap gap-2">${status('cancelled', 'Cancel order', danger)}</div>`);
             }
-            return wrap(`
-                <p class="text-xs font-bold uppercase tracking-wide text-gray-700 mb-2">Payment screenshot</p>
-                <a href="${esc(o.proof_url)}" target="_blank" class="block w-40 h-40 rounded overflow-hidden bg-gray-100 border border-gray-200 mb-3" title="Open full size">${img(o.proof_url, 'w-full h-full object-contain')}</a>
-                <p class="text-xs text-gray-500 mb-3">Check that ${money(o.total)} reached the account. Confirming takes the items out of stock.</p>
+            return wrap(`${receipt}
+                <p class="text-xs text-gray-500 mb-3">Check that ${money(o.total)} reached your account, then confirm. Can't fill the order? Cancel it — you'll be asked to refund the buyer.</p>
                 <div class="flex flex-wrap gap-2">
                     ${btn('Confirm payment', `reviewPayment(${o.order_id}, 'verified', this)`, primary)}
-                    ${btn('Reject screenshot', `reviewPayment(${o.order_id}, 'rejected', this)`, 'border border-gray-300 text-gray-700 hover:bg-gray-50')}
+                    ${btn('Reject receipt', `reviewPayment(${o.order_id}, 'rejected', this)`, 'border border-gray-300 text-gray-700 hover:bg-gray-50')}
+                    ${status('cancelled', 'Cancel order', danger)}
                 </div>`);
         case 'paid':
-            return wrap(`<p class="text-xs text-green-700 font-semibold mb-3">✓ Payment confirmed</p>
-                <div class="flex flex-wrap gap-2">${status('shipped', 'Mark as shipped', primary)}</div>`);
+            return wrap(`<p class="text-xs text-green-700 font-semibold mb-3">✓ Payment confirmed — ship to the address above</p>
+                <div class="flex flex-wrap gap-2">${status('shipped', 'Mark as shipped', primary)}${status('cancelled', 'Cancel & refund', danger)}</div>`);
         case 'shipped':
             return wrap(`<div class="flex flex-wrap gap-2">${status('delivered', 'Mark as delivered', primary)}</div>`);
+        case 'cancelled':
+            if (o.payment_status === 'refund_due') {
+                return wrap(`<p class="text-xs text-amber-700 font-semibold mb-3">Refund ${money(o.total)} to the buyer, then mark it refunded.</p>
+                    <div class="flex flex-wrap gap-2">${btn('Mark as refunded', `markRefunded(${o.order_id}, this)`, primary)}</div>`);
+            }
+            if (o.payment_status === 'refunded') return wrap('<p class="text-xs text-gray-500">Refunded ✓</p>');
+            return '';
         default:
             return '';
     }
 }
 
 async function updateOrderStatus(orderId, status, btn) {
-    if (status === 'cancelled' && !confirm('Cancel order #' + orderId + '? This cannot be undone.')) return;
+    if (status === 'cancelled' && !confirm('Cancel order #' + orderId + '? The items go back in stock. If the buyer already paid, you must refund them. This cannot be undone.')) return;
     await withBusy(btn, 'Saving...', async () => {
         try {
-            await API.put('/api/orders/' + orderId + '/status', { status });
-            toast('Order #' + orderId + ' → ' + status, 'success');
+            const res = await API.put('/api/orders/' + orderId + '/status', { status });
+            toast(res.refundDue ? 'Order cancelled — please refund the buyer' : 'Order #' + orderId + ' → ' + status, res.refundDue ? 'info' : 'success');
             showArtistOrders();
         } catch (err) { toast(err.message, 'error'); }
     });
@@ -1737,13 +1943,24 @@ async function updateOrderStatus(orderId, status, btn) {
 
 async function reviewPayment(orderId, status, btn) {
     const msg = status === 'verified'
-        ? 'Confirm you received this payment? The items will be taken out of stock.'
-        : 'Reject this screenshot? The buyer will be asked to upload a new one.';
+        ? 'Confirm the money reached your account? You can then ship the order.'
+        : 'Reject this receipt? The buyer will be asked to send the correct one.';
     if (!confirm(msg)) return;
     await withBusy(btn, 'Saving...', async () => {
         try {
             await API.put('/api/orders/' + orderId + '/payment', { status });
-            toast(status === 'verified' ? 'Payment confirmed — order marked paid' : 'Screenshot rejected', 'success');
+            toast(status === 'verified' ? 'Payment confirmed — order marked paid' : 'Receipt rejected', 'success');
+            showArtistOrders();
+        } catch (err) { toast(err.message, 'error'); }
+    });
+}
+
+async function markRefunded(orderId, btn) {
+    if (!confirm('Confirm you have sent the money back to the buyer?')) return;
+    await withBusy(btn, 'Saving...', async () => {
+        try {
+            await API.put('/api/orders/' + orderId + '/refund');
+            toast('Marked as refunded', 'success');
             showArtistOrders();
         } catch (err) { toast(err.message, 'error'); }
     });
@@ -1838,7 +2055,7 @@ async function showAdmin() {
             card('Artisans', s.artisans, s.pending_artisans + ' awaiting verification') +
             card('Payments', s.pending_payments, 'proofs to review') +
             card('Orders', s.orders, s.products + ' live products · ' + s.buyers + ' buyers') +
-            card('Sales', money(s.revenue), 'Labzo 8%: ' + money(s.revenue * 0.08));
+            card('Sales', money(s.revenue), 'Labzo 8%: ' + money(s.commission ?? s.revenue * 0.08));
     } catch (err) {
         statsEl.innerHTML = `<p class="text-red-500 col-span-full">${esc(err.message)}</p>`;
     }
@@ -1942,13 +2159,13 @@ window.addEventListener('load', () => {
 Object.assign(window, {
     showScreen, toast, loadDashboard, goHome, logout,
     loadHome, openShop, searchShop, clearShopSearch, loadShop,
-    openProduct, addToBag, buyNow, openBag, renderBag, updateQty, removeItem, checkout,
+    openProduct, addToBag, buyNow, openBag, renderBag, updateQty, removeItem, openCheckout, copyText,
     showOrders, choosePaymentProof, cancelOrder,
     showSaved, toggleSaved,
     showProfile, removeGalleryImage,
     showArtists, openArtist,
     loadArtistDashboard, showAddProduct, editProduct, showMyProducts, deleteProduct,
-    showArtistOrders, updateOrderStatus, reviewPayment,
+    showArtistOrders, updateOrderStatus, reviewPayment, markRefunded,
     removeWorkshopFile, setArtworkFile,
     showAdmin, showAdminTab, setArtisanStatus,
 });

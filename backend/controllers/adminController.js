@@ -15,7 +15,9 @@ async function stats(req, res) {
                 (SELECT COUNT(*) FROM "order")::int                                 AS orders,
                 (SELECT COUNT(*) FROM payment WHERE status = 'pending')::int        AS pending_payments,
                 (SELECT COALESCE(SUM(total), 0) FROM "order"
-                    WHERE status IN ('paid', 'shipped', 'delivered'))::float        AS revenue
+                    WHERE status IN ('paid', 'shipped', 'delivered'))::float        AS revenue,
+                (SELECT COALESCE(SUM(COALESCE(commission, total * 0.08)), 0) FROM "order"
+                    WHERE status IN ('paid', 'shipped', 'delivered'))::float        AS commission
         `);
         res.json(result.rows[0]);
     } catch (err) {
