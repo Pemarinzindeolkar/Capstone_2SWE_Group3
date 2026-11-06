@@ -305,7 +305,7 @@ function renderFooters() {
             <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-10">
                 <div class="col-span-2 md:col-span-1">
                     <p class="text-2xl font-bold mb-4">Labzo</p>
-                    <p class="text-sm text-white/70">A marketplace built around the maker, not the machine.</p>
+                    <p class="text-sm text-white/70">A marketplace built around the maker, not the hype.</p>
                 </div>
                 <div>
                     <p class="text-xs uppercase tracking-widest font-bold mb-4 text-white/90">Shop</p>
