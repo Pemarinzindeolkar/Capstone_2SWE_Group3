@@ -50,8 +50,8 @@ body {
 
 .input-field:focus {
     outline: none;
-    border-color: #8C7A6B;
-    box-shadow: 0 0 0 1px #8C7A6B;
+    border-color: #90613a;
+    box-shadow: 0 0 0 2px #90613a;
 }
 
 .input-field::placeholder {
@@ -302,3 +302,11 @@ body {
     font-weight: 600;
     color: #e6c58a;
 }
+
+/* Keyboard focus ring (WCAG 2.4.7). :focus-visible only shows for keyboard users, not mouse clicks.
+   Brown on light backgrounds, cream on the brown navbar / auth panel / footer. */
+:focus-visible {
+    outline: 3px solid #90613a;
+    outline-offset: 2px;
+}
+.bg-brand :focus-visible { outline-color: #F5F2EB; }

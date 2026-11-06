@@ -278,19 +278,19 @@ function renderNav(header) {
     const active = header.dataset.active;
     const link = ([key, label, action]) => {
         const text = key === 'bag' && state.bagCount ? `${label} (${state.bagCount})` : label;
-        return `<span class="nav-link ${key === active ? 'active' : ''}" onclick="${action}">${esc(text)}</span>`;
+        return `<button type="button" class="nav-link ${key === active ? 'active' : ''}" ${key === active ? 'aria-current="page"' : ''} onclick="${action}">${esc(text)}</button>`;
     };
 
     header.innerHTML = `
         <div class="w-full bg-brand px-4 md:px-8 py-4 md:py-5 text-white shadow-md">
             <div class="flex items-center gap-2 md:gap-3 text-base md:text-lg font-medium whitespace-nowrap overflow-x-auto nav-scroll">
-                <span class="flex flex-shrink-0 items-center gap-2 text-2xl md:text-3xl font-bold tracking-widest cursor-pointer mr-3 md:mr-5" onclick="goHome()">
+                <button type="button" aria-label="Labzo home" class="flex flex-shrink-0 items-center gap-2 text-2xl md:text-3xl font-bold tracking-widest mr-3 md:mr-5" onclick="goHome()">
                     <img src="logo.png" alt="" class="w-9 h-9 md:w-11 md:h-11 object-contain"><span class="font-brand">LABZO</span>
-                </span>
+                </button>
                 ${links.left.map(link).join('')}
                 <span class="flex-1"></span>
                 ${links.right.map(link).join('')}
-                <span class="nav-link" onclick="logout()">Logout</span>
+                <button type="button" class="nav-link" onclick="logout()">Logout</button>
             </div>
         </div>`;
 }
@@ -310,16 +310,16 @@ function renderFooters() {
                 <div>
                     <p class="text-xs uppercase tracking-widest font-bold mb-4 text-white/90">Shop</p>
                     <ul class="space-y-2 text-sm text-white/70">
-                        <li class="cursor-pointer hover:text-white" onclick="openShop('textiles')">Textiles</li>
-                        <li class="cursor-pointer hover:text-white" onclick="openShop('paintings')">Paintings</li>
-                        <li class="cursor-pointer hover:text-white" onclick="openShop('masks')">Masks</li>
+                        <li><button type="button" class="hover:text-white" onclick="openShop('textiles')">Textiles</button></li>
+                        <li><button type="button" class="hover:text-white" onclick="openShop('paintings')">Paintings</button></li>
+                        <li><button type="button" class="hover:text-white" onclick="openShop('masks')">Masks</button></li>
                     </ul>
                 </div>
                 <div>
                     <p class="text-xs uppercase tracking-widest font-bold mb-4 text-white/90">Labzo</p>
                     <ul class="space-y-2 text-sm text-white/70">
-                        <li class="cursor-pointer hover:text-white" onclick="showScreen('about-screen')">About</li>
-                        <li class="cursor-pointer hover:text-white" onclick="showArtists()">Artisan stories</li>
+                        <li><button type="button" class="hover:text-white" onclick="showScreen('about-screen')">About</button></li>
+                        <li><button type="button" class="hover:text-white" onclick="showArtists()">Artisan stories</button></li>
                     </ul>
                 </div>
                 <div>
@@ -655,6 +655,8 @@ function quickAddButton(p) {
                 onclick="event.stopPropagation(); quickAddToBag(${p.product_id}, this)">${BAG_ICON}</button>`;
 }
 
+// Cards hold their own buttons (like, quick add), so the card can't be a <button>.
+// The title is one instead: Tab lands on it, and its click bubbles up to the card's onclick.
 function productCard(p, opts = {}) {
     return `
         <div onclick="openProduct(${p.product_id})"
@@ -667,7 +669,7 @@ function productCard(p, opts = {}) {
             </div>
             <div class="p-3 md:p-4">
                 <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">${esc(categoryLabel(p.category))}</p>
-                <h3 class="font-bold text-gray-800 mb-1 truncate">${esc(p.title)}</h3>
+                <h3 class="font-bold text-gray-800 mb-1"><button type="button" class="block w-full text-left truncate">${esc(p.title)}</button></h3>
                 ${opts.hideArtisan ? '' : `<p class="text-xs text-gray-500 mb-2 truncate">by ${esc(p.artisan_name)}</p>`}
                 <p class="text-base md:text-lg font-bold text-brand">${money(p.price)}</p>
             </div>
@@ -682,7 +684,7 @@ function artisanCard(a, centered = false) {
             <div class="flex ${centered ? 'flex-col items-center' : 'items-center'} gap-4 mb-4">
                 ${avatar(a, centered ? 'w-20 h-20' : 'w-14 h-14', centered ? 'text-2xl' : 'text-lg')}
                 <div class="min-w-0">
-                    <h3 class="font-bold text-gray-800">${esc(a.name)} ${verifiedBadge(a.status)}</h3>
+                    <h3 class="font-bold text-gray-800"><button type="button">${esc(a.name)}</button> ${verifiedBadge(a.status)}</h3>
                     <p class="text-xs text-gray-500">${esc(a.technique || 'Artisan')}</p>
                     ${where ? `<p class="text-xs text-gray-400">${esc(where)}</p>` : ''}
                 </div>
@@ -765,7 +767,7 @@ async function loadHome() {
                     ? `<img src="${CATEGORY_IMAGES[v]}" alt="" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">`
                     : `<span class="text-3xl font-light text-brand">${esc(l[0])}</span>`}
             </div>
-            <p class="py-2 px-1 text-center text-xs font-semibold text-gray-700 group-hover:text-brand truncate">${esc(l)}</p>
+            <p class="py-2 px-1 text-center text-xs font-semibold text-gray-700 group-hover:text-brand"><button type="button" class="block w-full truncate">${esc(l)}</button></p>
         </div>
     `).join('');
 
@@ -934,7 +936,7 @@ async function openProduct(productId) {
                     ${avatar({ name: p.artisan_name, photo_url: p.artisan_photo }, 'w-12 h-12', 'text-base')}
                     <div>
                         <p class="text-xs text-gray-400 uppercase tracking-wide">Artisan</p>
-                        <p class="font-bold text-gray-800 group-hover:underline">${esc(p.artisan_name)} ${verifiedBadge(p.artisan_status)}</p>
+                        <p class="font-bold text-gray-800 group-hover:underline"><button type="button" class="group-hover:underline">${esc(p.artisan_name)}</button> ${verifiedBadge(p.artisan_status)}</p>
                         <p class="text-xs text-gray-500">${esc([p.technique, where].filter(Boolean).join(' · '))}</p>
                     </div>
                 </div>
@@ -1018,7 +1020,7 @@ async function renderBag() {
 
         const itemsHtml = cart.items.map(item => `
             <div class="bg-white rounded-lg p-4 flex gap-4 items-center shadow-sm">
-                <div class="w-20 h-20 bg-gray-100 rounded flex-shrink-0 overflow-hidden cursor-pointer" onclick="openProduct(${item.product_id})">${img(item.image_url)}</div>
+                <button type="button" aria-label="View ${esc(item.title)}" class="block w-20 h-20 bg-gray-100 rounded flex-shrink-0 overflow-hidden" onclick="openProduct(${item.product_id})">${img(item.image_url)}</button>
                 <div class="flex-1 min-w-0">
                     <p class="text-xs text-gray-400 uppercase tracking-wide">${esc(categoryLabel(item.category))}</p>
                     <h3 class="font-bold text-gray-800 truncate">${esc(item.title)}</h3>
@@ -1300,7 +1302,7 @@ async function showOrders() {
                 <div class="flex justify-between items-start mb-4 pb-4 border-b border-gray-100 gap-4">
                     <div>
                         <p class="text-xs text-gray-400 uppercase tracking-wide">Order #${o.order_id} · ${fmtDate(o.created_at)}</p>
-                        <p class="font-bold text-gray-800 cursor-pointer hover:underline" onclick="openArtist(${o.artisan_id})">from ${esc(o.artisan_name)}</p>
+                        <p class="font-bold text-gray-800"><button type="button" class="hover:underline" onclick="openArtist(${o.artisan_id})">from ${esc(o.artisan_name)}</button></p>
                     </div>
                     <div class="text-right">
                         ${pill(o.status)}
@@ -1434,7 +1436,7 @@ async function showSaved() {
         }
         grid.innerHTML = data.items.map(p => `
             <div class="bg-white rounded-lg overflow-hidden shadow-sm">
-                <div class="aspect-square bg-gray-100 overflow-hidden cursor-pointer" onclick="openProduct(${p.product_id})">${img(p.image_url)}</div>
+                <button type="button" aria-label="View ${esc(p.title)}" class="block w-full aspect-square bg-gray-100 overflow-hidden" onclick="openProduct(${p.product_id})">${img(p.image_url)}</button>
                 <div class="p-3 md:p-4">
                     <h3 class="font-bold text-gray-800 truncate">${esc(p.title)}</h3>
                     <p class="text-xs text-gray-500 mb-2 truncate">by ${esc(p.artisan_name)}</p>
@@ -1460,7 +1462,7 @@ function fillProfile(user) {
     document.getElementById('profile-email').textContent = user.email || '';
     document.getElementById('profile-heading').textContent = isArtist ? 'Artist Profile' : (user.role === 'admin' ? 'Admin Profile' : 'My Profile');
     document.getElementById('profile-status').innerHTML = isArtist
-        ? 'Verification: ' + pill(user.status) + ` · <span class="text-brand hover:underline cursor-pointer" onclick="openArtist(${user.id})">View public profile →</span>`
+        ? 'Verification: ' + pill(user.status) + ` · <button type="button" class="text-brand hover:underline" onclick="openArtist(${user.id})">View public profile →</button>`
         : '';
 
     const av = document.getElementById('profile-avatar');
@@ -1500,6 +1502,7 @@ async function showProfile() {
     if (!u) return showScreen('login-screen');
     document.getElementById('password-form').reset();
     fillProfile(u);
+    renderShortcutSettings();
     showScreen('profile-screen');
 
     try {
@@ -1807,7 +1810,7 @@ async function showMyProducts() {
         }
         grid.innerHTML = data.products.map(p => `
             <div class="bg-white rounded-lg overflow-hidden shadow-sm">
-                <div class="aspect-square bg-gray-100 overflow-hidden cursor-pointer" onclick="openProduct(${p.product_id})">${img(p.image_url)}</div>
+                <button type="button" aria-label="View ${esc(p.title)}" class="block w-full aspect-square bg-gray-100 overflow-hidden" onclick="openProduct(${p.product_id})">${img(p.image_url)}</button>
                 <div class="p-3 md:p-4">
                     <div class="flex justify-between items-center mb-1 gap-2">
                         <p class="text-xs text-gray-400 uppercase tracking-wide truncate">${esc(categoryLabel(p.category))}</p>
@@ -2138,6 +2141,96 @@ async function setArtisanStatus(id, status) {
 }
 
 // ============================================================
+// KEYBOARD SHORTCUTS (WCAG 2.1.4) — single keys, can be turned off or remapped in Profile
+// ============================================================
+const SHORTCUTS_KEY = 'labzo_shortcuts';
+const SHORTCUT_ACTIONS = {
+    search:  { label: 'Search the shop',    key: '/', run: () => { openShop(); document.getElementById('shop-search').focus(); } },
+    home:    { label: 'Go home',            key: 'h', run: () => goHome() },
+    shop:    { label: 'Open the shop',      key: 's', run: () => openShop() },
+    bag:     { label: 'Open your bag',      key: 'b', run: () => openBag(), buyerOnly: true },
+    profile: { label: 'Open your profile',  key: 'p', run: () => showProfile() },
+    help:    { label: 'Show all shortcuts', key: '?', run: () => { showProfile(); document.getElementById('shortcuts-enabled').focus(); } },
+};
+
+// Saved settings merged over the defaults; storage can be blocked, so fall back quietly
+function getShortcutPrefs() {
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem(SHORTCUTS_KEY)) || {}; } catch { /* use defaults */ }
+    const keys = {};
+    for (const [name, a] of Object.entries(SHORTCUT_ACTIONS)) keys[name] = saved.keys?.[name] || a.key;
+    return { enabled: saved.enabled !== false, keys };
+}
+
+function saveShortcutPrefs(prefs) {
+    try { localStorage.setItem(SHORTCUTS_KEY, JSON.stringify(prefs)); } catch { /* not saved */ }
+}
+
+function availableShortcuts(u) {
+    return Object.entries(SHORTCUT_ACTIONS).filter(([, a]) => !a.buyerOnly || u?.role === 'buyer');
+}
+
+function handleShortcutKey(e) {
+    // Leave Cmd/Ctrl/Alt combos to the browser and OS
+    if (e.defaultPrevented || e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+    // Typing in a box is never a shortcut
+    const t = e.target;
+    if (t.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(t.tagName)) return;
+
+    const u = API.getUser();
+    const prefs = getShortcutPrefs();
+    if (!u || !prefs.enabled) return;
+
+    const key = e.key.toLowerCase();
+    const match = availableShortcuts(u).find(([name]) => prefs.keys[name] === key);
+    if (!match) return;
+    e.preventDefault(); // otherwise '/' would be typed into the search box it just focused
+    match[1].run();
+}
+
+function renderShortcutSettings() {
+    const prefs = getShortcutPrefs();
+    document.getElementById('shortcuts-enabled').checked = prefs.enabled;
+    document.getElementById('shortcut-rows').innerHTML = availableShortcuts(API.getUser()).map(([name, a]) => `
+        <div>
+            <label for="shortcut-key-${name}" class="block text-xs font-bold mb-1 uppercase tracking-wide text-gray-700">${esc(a.label)}</label>
+            <input type="text" id="shortcut-key-${name}" data-action="${name}" value="${esc(prefs.keys[name])}"
+                   maxlength="1" required autocomplete="off" class="input-field text-center font-mono">
+        </div>`).join('');
+}
+
+function initShortcuts() {
+    document.addEventListener('keydown', handleShortcutKey);
+
+    document.getElementById('shortcuts-enabled').addEventListener('change', (e) => {
+        saveShortcutPrefs({ ...getShortcutPrefs(), enabled: e.target.checked });
+        toast(e.target.checked ? 'Keyboard shortcuts on' : 'Keyboard shortcuts off', 'success');
+    });
+
+    document.getElementById('shortcuts-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const prefs = getShortcutPrefs();
+        const used = new Set();
+        for (const input of e.target.querySelectorAll('input[data-action]')) {
+            const key = input.value.trim().toLowerCase();
+            if (key.length !== 1) { input.focus(); return toast('Each shortcut must be a single key', 'error'); }
+            if (used.has(key)) { input.focus(); return toast(`"${key}" is used for two shortcuts`, 'error'); }
+            used.add(key);
+            prefs.keys[input.dataset.action] = key;
+        }
+        saveShortcutPrefs(prefs);
+        renderShortcutSettings();
+        toast('Shortcuts saved', 'success');
+    });
+
+    document.getElementById('shortcuts-reset').addEventListener('click', () => {
+        saveShortcutPrefs({ enabled: true, keys: {} });
+        renderShortcutSettings();
+        toast('Shortcuts reset to defaults', 'success');
+    });
+}
+
+// ============================================================
 // START
 // ============================================================
 window.addEventListener('load', () => {
@@ -2148,6 +2241,7 @@ window.addEventListener('load', () => {
     initOrders();
     initProfile();
     initProductForm();
+    initShortcuts();
     document.querySelectorAll('.admin-tab').forEach(b =>
         b.addEventListener('click', () => showAdminTab(b.dataset.adminTab)));
 
