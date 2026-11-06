@@ -63,6 +63,7 @@ const CATEGORY_IMAGES = {
     jewelry: 'category_images/jewelry.jpg',
     pottery: 'category_images/pottery.jpg',
     bamboo: 'category_images/bamboo.jpg',
+    woodwork: 'category_images/woodwork.jpg',
     other: 'category_images/other.jpg',
 };
 
