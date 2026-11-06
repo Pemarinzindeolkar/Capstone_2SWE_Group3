@@ -238,7 +238,7 @@ const NAV_LINKS = {
             ['home', 'Home', 'goHome()'],
             ['shop', 'Shop', 'openShop()'],
             ['artists', 'Artists', 'showArtists()'],
-            ['about', 'About', "showScreen('about-screen')"],
+            ['about', 'About', 'showAbout()'],
         ],
         right: [
             ['saved', 'Saved', 'showSaved()'],
@@ -318,7 +318,7 @@ function renderFooters() {
                 <div>
                     <p class="text-xs uppercase tracking-widest font-bold mb-4 text-white/90">Labzo</p>
                     <ul class="space-y-2 text-sm text-white/70">
-                        <li><button type="button" class="hover:text-white" onclick="showScreen('about-screen')">About</button></li>
+                        <li><button type="button" class="hover:text-white" onclick="showAbout()">About</button></li>
                         <li><button type="button" class="hover:text-white" onclick="showArtists()">Artisan stories</button></li>
                     </ul>
                 </div>
@@ -2141,6 +2141,101 @@ async function setArtisanStatus(id, status) {
 }
 
 // ============================================================
+// ABOUT PAGE
+// ============================================================
+
+// Team cards — replace with your group's names and roles. photo is optional
+// (a path like 'team/pema.jpg' inside public/); without it the initials show.
+const TEAM = [
+    { name: 'Pema R Deolkar', role: 'Fullstack' },
+    { name: 'Dechen Dorji', role: 'Backend' },
+    { name: 'Jetsuen Thinley', role: 'Database' },
+    { name: 'Yosel Rai', role: 'Frontend' },
+    { name: 'Kinlay Gyeltshen', role: 'Deployment' },
+];
+
+function showAbout() {
+    showScreen('about-screen');
+    renderAboutTeam();
+    renderAboutCta();
+    loadAboutStats();
+}
+
+// Animate a number from 0 to its value (skipped when the user prefers less motion)
+function countUp(el, target) {
+    if (target === 0 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        el.textContent = target;
+        return;
+    }
+    const start = performance.now();
+    const step = (now) => {
+        const t = Math.min((now - start) / 900, 1);
+        el.textContent = Math.round(target * (1 - Math.pow(1 - t, 3)));
+        if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+}
+
+// The four numbers come from the public artisan list, so they're always current
+async function loadAboutStats() {
+    try {
+        const { artisans } = await API.get('/api/artisans');
+        const verified = artisans.filter(a => a.status === 'verified').length;
+        const artworks = artisans.reduce((n, a) => n + (a.product_count || 0), 0);
+        // location is free text ("Town, Dzongkhag"), so look for each dzongkhag's first word in it
+        const places = new Set();
+        artisans.forEach(a => {
+            const loc = (a.location || '').toLowerCase();
+            const d = DZONGKHAGS.find(name => loc.includes(name.split(' ')[0].toLowerCase()));
+            if (d) places.add(d);
+        });
+        // Match on the Dzongkha name only: technique is saved as "Lhazo:Painting" or, in older rows, "Lhazo — Painting"
+        const craftName = t => (t || '').split(/[:—–-]/)[0].trim().toLowerCase();
+        const known = CRAFTS.filter(c => c !== 'Other').map(craftName);
+        const arts = new Set(artisans.map(a => craftName(a.technique)).filter(n => known.includes(n)));
+
+        countUp(document.getElementById('about-stat-artisans'), artisans.length);
+        countUp(document.getElementById('about-stat-artworks'), artworks);
+        countUp(document.getElementById('about-stat-places'), places.size);
+        countUp(document.getElementById('about-stat-arts'), arts.size);
+        document.getElementById('about-stat-verified').textContent = `${verified} verified`;
+    } catch (err) {
+        console.warn('[about] could not load numbers:', err.message);
+    }
+}
+
+function renderAboutTeam() {
+    const initials = name => name.split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    document.getElementById('about-team').innerHTML = TEAM.map(m => `
+        <div class="about-member">
+            <div class="about-avatar">${m.photo ? `<img src="${esc(m.photo)}" alt="">` : esc(initials(m.name))}</div>
+            <p class="font-bold text-gray-800">${esc(m.name)}</p>
+            <p class="text-xs text-gray-500 uppercase tracking-wide mt-1">${esc(m.role)}</p>
+        </div>`).join('');
+}
+
+// First card always sends people to the shop; the second depends on who's looking
+function renderAboutCta() {
+    const role = API.getUser()?.role;
+    const second = {
+        artisan: ['Add your next piece', 'Every listing carries your name and your craft to new buyers.', 'Add an artwork', 'showAddProduct()'],
+        admin: ['Meet the artisans', 'Every workshop on Labzo, from verified masters to new sellers.', 'View artisans', 'showArtists()'],
+    }[role] || ['Share your craft with the world', 'Sell your work on Labzo and keep 92% of every sale.', 'Become a seller', "logout(); showScreen('artist-step1')"];
+
+    const card = (cls, [title, text, label, action]) => `
+        <div class="about-cta-card ${cls}">
+            <div class="min-w-0">
+                <h3>${title}</h3>
+                <p>${text}</p>
+            </div>
+            <button type="button" class="about-cta-btn" onclick="${action}">${label} →</button>
+        </div>`;
+    document.getElementById('about-cta').innerHTML =
+        card('about-cta-dark', ['Bring a piece of Bhutan home', 'Masks, textiles, paintings and more, straight from the workshop.', 'Shop all artworks', 'openShop()'])
+        + card('about-cta-brown', second);
+}
+
+// ============================================================
 // KEYBOARD SHORTCUTS (WCAG 2.1.4) — single keys, can be turned off or remapped in Profile
 // ============================================================
 const SHORTCUTS_KEY = 'labzo_shortcuts';
@@ -2258,7 +2353,7 @@ Object.assign(window, {
     showOrders, choosePaymentProof, cancelOrder,
     showSaved, toggleSaved,
     showProfile, removeGalleryImage,
-    showArtists, openArtist,
+    showArtists, openArtist, showAbout,
     loadArtistDashboard, showAddProduct, editProduct, showMyProducts, deleteProduct,
     showArtistOrders, updateOrderStatus, reviewPayment, markRefunded,
     removeWorkshopFile, setArtworkFile,
