@@ -68,8 +68,8 @@
                     <button type="submit" class="w-full bg-gray-900 text-white py-4 rounded text-base font-semibold hover:bg-gray-700 transition mt-4">Log In</button>
 
                     <div class="text-center text-sm text-gray-500 mt-6">
-                        Don't have an account? <span id="link-to-signup" class="text-brand font-bold cursor-pointer hover:underline">Sign up</span>
-                        <span class="md:hidden"> · <span class="text-brand font-bold cursor-pointer hover:underline" onclick="showScreen('artist-step1')">Sell your art</span></span>
+                        Don't have an account? <button type="button" id="link-to-signup" class="text-brand font-bold hover:underline">Sign up</button>
+                        <span class="md:hidden"> · <button type="button" class="text-brand font-bold hover:underline" onclick="showScreen('artist-step1')">Sell your art</button></span>
                     </div>
                 </form>
                 </div>
@@ -139,7 +139,7 @@
                     <button type="submit" class="w-full bg-gray-900 text-white py-4 rounded text-base font-semibold hover:bg-gray-700 transition mt-4">Sign Up</button>
 
                     <div class="text-center text-sm text-gray-500 mt-6">
-                        Already have an account? <span id="link-to-login" class="text-brand font-bold cursor-pointer hover:underline">Log in</span>
+                        Already have an account? <button type="button" id="link-to-login" class="text-brand font-bold hover:underline">Log in</button>
                     </div>
                 </form>
                 </div>
@@ -398,7 +398,7 @@
                         <p class="text-xs uppercase tracking-widest text-brand font-semibold mb-1">— Most loved</p>
                         <h2 class="text-2xl font-bold text-gray-800">Featured artworks</h2>
                     </div>
-                    <span class="text-xs text-gray-500 hover:underline cursor-pointer" onclick="openShop()">View all →</span>
+                    <button type="button" class="text-xs text-gray-500 hover:underline" onclick="openShop()">View all →</button>
                 </div>
                 <div id="home-products" class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"></div>
             </div>
@@ -417,7 +417,7 @@
                         <p class="text-xs uppercase tracking-widest text-brand font-semibold mb-1">— The hands behind the work</p>
                         <h2 class="text-2xl font-bold text-gray-800">Featured artisans</h2>
                     </div>
-                    <span class="text-xs text-gray-500 hover:underline cursor-pointer" onclick="showArtists()">All artisans →</span>
+                    <button type="button" class="text-xs text-gray-500 hover:underline" onclick="showArtists()">All artisans →</button>
                 </div>
                 <div id="home-artisans" class="grid md:grid-cols-3 gap-6"></div>
             </div>
@@ -726,6 +726,23 @@
                     </div>
                     <button type="submit" class="px-8 py-3 border border-gray-300 text-gray-700 text-sm font-semibold rounded hover:bg-gray-50 transition">Update password</button>
                 </form>
+
+                <!-- Keyboard shortcuts (WCAG 2.1.4) — rows are filled by renderShortcutSettings() in script.js -->
+                <form id="shortcuts-form" class="bg-white p-6 md:p-8 rounded-lg shadow-sm space-y-5 mt-6">
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-800">Keyboard shortcuts</h2>
+                        <p class="text-sm text-gray-500 mt-1">Press a single key to jump around Labzo. Shortcuts never fire while you're typing in a box, and never replace browser shortcuts like Cmd/Ctrl + F.</p>
+                    </div>
+                    <label class="flex items-center gap-3 text-sm font-semibold text-gray-700 cursor-pointer">
+                        <input type="checkbox" id="shortcuts-enabled" class="accent-brand w-4 h-4">
+                        Enable single-key shortcuts
+                    </label>
+                    <div id="shortcut-rows" class="grid grid-cols-2 sm:grid-cols-3 gap-4"></div>
+                    <div class="flex flex-wrap gap-3">
+                        <button type="submit" class="px-8 py-3 bg-gray-900 text-white text-sm font-semibold rounded hover:bg-gray-700 transition">Save shortcuts</button>
+                        <button type="button" id="shortcuts-reset" class="px-8 py-3 border border-gray-300 text-gray-700 text-sm font-semibold rounded hover:bg-gray-50 transition">Reset to defaults</button>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -827,7 +844,7 @@
                 <div id="artist-verify-banner" class="hidden mb-6 rounded-lg p-4 text-sm"></div>
                 <div id="artist-bank-banner" class="hidden mb-6 rounded-lg p-4 text-sm bg-red-50 text-red-800 border border-red-200">
                     <span class="font-semibold">Add your bank account</span> — buyers pay you directly at checkout, so they can't buy your pieces until it's set.
-                    <span class="font-semibold underline cursor-pointer" onclick="showProfile()">Add it in your profile →</span>
+                    <button type="button" class="font-semibold underline" onclick="showProfile()">Add it in your profile →</button>
                 </div>
 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-10">
