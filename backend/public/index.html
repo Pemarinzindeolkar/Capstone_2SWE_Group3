@@ -781,54 +781,200 @@
         <div id="about-screen" class="screen w-full h-full bg-cream text-gray-900 flex-col overflow-y-auto">
             <header data-nav data-active="about"></header>
 
-            <div class="bg-cream border-b border-gray-200 py-16 md:py-20 px-6 md:px-10 text-center">
-                <p class="text-xs uppercase tracking-widest text-brand font-semibold mb-4">— Our Purpose</p>
-                <h1 class="text-3xl md:text-5xl font-light text-gray-800 leading-tight max-w-3xl mx-auto">
-                    Every weave, every brushstroke,<br>
-                    every carving <span class="text-brand font-normal">traceable</span><br>
-                    to a Bhutanese hand.
-                </h1>
-                <p class="text-gray-500 max-w-xl mx-auto mt-8 text-sm leading-relaxed">
-                    Labzo is built to carry the Zorig Chusum the thirteen traditional arts of Bhutan into the hands of the world, without losing the hands that make them.
-                </p>
-            </div>
+            <!-- Hero: slogan on the left, live numbers (loadAboutStats in script.js) on the right -->
+            <section class="about-hero bg-brand relative overflow-hidden shrink-0 px-6 md:px-10 py-12 md:py-16">
+                <div class="relative z-10 max-w-6xl mx-auto grid md:grid-cols-2 gap-10 md:gap-14 items-center">
+                    <div class="text-center md:text-left">
+                        <p class="about-eyebrow about-eyebrow-light mb-4">— Our Purpose</p>
+                        <h1 class="about-hero-title">
+                            Every weave, every brushstroke,<br>
+                            every carving <span class="about-hero-accent">traceable</span><br>
+                            to a Bhutanese hand.
+                        </h1>
+                        <p class="text-white/80 max-w-xl mx-auto md:mx-0 mt-6 text-sm leading-relaxed">
+                            Labzo is built to carry the Zorig Chusum — the thirteen traditional arts of Bhutan — into the hands of the world, without losing the hands that make them.
+                        </p>
+                    </div>
+                    <div class="w-full max-w-md mx-auto md:mr-0">
+                        <div class="grid grid-cols-2 bg-white rounded-lg overflow-hidden shadow-md">
+                            <div class="about-stat">
+                                <p class="about-stat-num"><span id="about-stat-artisans">—</span></p>
+                                <p class="about-stat-label">Artisans</p>
+                                <p class="about-stat-sub" id="about-stat-verified">on Labzo</p>
+                            </div>
+                            <div class="about-stat">
+                                <p class="about-stat-num"><span id="about-stat-artworks">—</span></p>
+                                <p class="about-stat-label">Handmade pieces</p>
+                                <p class="about-stat-sub">listed right now</p>
+                            </div>
+                            <div class="about-stat">
+                                <p class="about-stat-num"><span id="about-stat-places">—</span><span class="about-stat-of">/20</span></p>
+                                <p class="about-stat-label">Dzongkhags</p>
+                                <p class="about-stat-sub">where our makers work</p>
+                            </div>
+                            <div class="about-stat">
+                                <p class="about-stat-num"><span id="about-stat-arts">—</span><span class="about-stat-of">/13</span></p>
+                                <p class="about-stat-label">Traditional arts</p>
+                                <p class="about-stat-sub">of the Zorig Chusum</p>
+                            </div>
+                        </div>
+                        <p class="text-center text-xs text-white/70 mt-3">Live from the Labzo marketplace</p>
+                    </div>
+                </div>
+            </section>
 
-            <div class="max-w-6xl mx-auto w-full grid md:grid-cols-3 md:divide-x divide-gray-200 border-b border-gray-200">
-                <div class="p-8 md:p-10">
-                    <h3 class="font-bold text-gray-800 mb-3">Direct from the workshop</h3>
-                    <p class="text-sm text-gray-500 leading-relaxed">No middle broker. Every artisan sets their own price and ships from their own studio in Thimphu, Paro, Bumthang, or beyond.</p>
+            <!-- Three promises -->
+            <section class="px-6 md:px-10 py-10 md:py-12">
+                <div class="max-w-5xl mx-auto grid md:grid-cols-3 gap-4 md:gap-5">
+                    <div class="about-card">
+                        <span class="about-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 4l9 6.5"/><path d="M5 9.5V20h14V9.5"/><path d="M10 20v-5h4v5"/></svg>
+                        </span>
+                        <h3 class="font-bold text-gray-800 mb-2">Direct from the workshop</h3>
+                        <p class="text-sm text-gray-500 leading-relaxed">No middle broker. Every artisan sets their own price and ships from their own studio in Thimphu, Paro, Bumthang, or beyond.</p>
+                    </div>
+                    <div class="about-card">
+                        <span class="about-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4.5 6v5.5c0 4.6 3.2 8.2 7.5 9.5 4.3-1.3 7.5-4.9 7.5-9.5V6L12 3Z"/><path d="m8.8 12 2.2 2.2 4.4-4.4"/></svg>
+                        </span>
+                        <h3 class="font-bold text-gray-800 mb-2">Craft you can trust</h3>
+                        <p class="text-sm text-gray-500 leading-relaxed">Every seller is verified before they earn the Verified badge. We verify the craft, not just the paper.</p>
+                    </div>
+                    <div class="about-card">
+                        <span class="about-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 7h14"/><path d="m5 7-3 6a3 3 0 0 0 6 0L5 7Z"/><path d="m19 7-3 6a3 3 0 0 0 6 0l-3-6Z"/><path d="M8 21h8"/></svg>
+                        </span>
+                        <h3 class="font-bold text-gray-800 mb-2">Fair to the maker</h3>
+                        <p class="text-sm text-gray-500 leading-relaxed">Labzo takes a flat 8% — far below the global average. The rest returns to the artisan, their family, and their workshop.</p>
+                        <p class="about-split mt-4" aria-label="92% to the artisan, 8% to Labzo">
+                            <span class="about-split-maker">92% artisan</span><span class="about-split-labzo">8%</span>
+                        </p>
+                    </div>
                 </div>
-                <div class="p-8 md:p-10">
-                    <h3 class="font-bold text-gray-800 mb-3">Craft you can trust</h3>
-                    <p class="text-sm text-gray-500 leading-relaxed">Every seller is verified before they earn the Verified badge. We verify the craft, not just the paper.</p>
-                </div>
-                <div class="p-8 md:p-10">
-                    <h3 class="font-bold text-gray-800 mb-3">Fair to the maker</h3>
-                    <p class="text-sm text-gray-500 leading-relaxed">Labzo takes a flat 8% far below the global average. The rest returns to the artisan, their family, and their workshop.</p>
-                </div>
-            </div>
+            </section>
 
-            <div class="max-w-6xl mx-auto w-full py-16 px-6 md:px-10 text-center">
-                <p class="text-xs uppercase tracking-widest text-brand font-semibold mb-6">— Our Values</p>
-                <div class="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <!-- How it works: the real order + payment flow -->
+            <section class="bg-white px-6 md:px-10 py-10 md:py-12">
+                <div class="max-w-6xl mx-auto">
+                    <p class="about-eyebrow mb-2">— How Labzo works</p>
+                    <h2 class="about-h2">From the workshop to your door</h2>
+                    <p class="text-gray-500 text-sm mt-1 mb-8 max-w-xl">Six steps, and no middle broker at any of them.</p>
+                    <ol class="about-journey">
+                        <li>
+                            <span class="about-step-num">1</span>
+                            <span class="about-who">Artisan</span>
+                            <h3>Applies to sell</h3>
+                            <p>Signs up with their craft from the Zorig Chusum and their workshop, then adds the bank account buyers will pay into.</p>
+                        </li>
+                        <li>
+                            <span class="about-step-num">2</span>
+                            <span class="about-who about-who-labzo">Labzo</span>
+                            <h3>Verifies the craft</h3>
+                            <p>Our team reviews each seller before they earn the Verified badge.</p>
+                        </li>
+                        <li>
+                            <span class="about-step-num">3</span>
+                            <span class="about-who">Artisan</span>
+                            <h3>Lists a piece</h3>
+                            <p>Photographs it, tells its story and sets their own price.</p>
+                        </li>
+                        <li>
+                            <span class="about-step-num">4</span>
+                            <span class="about-who about-who-you">You</span>
+                            <h3>Place an order</h3>
+                            <p>Your bag becomes one order per artisan, so every maker gets their own.</p>
+                        </li>
+                        <li>
+                            <span class="about-step-num">5</span>
+                            <span class="about-who about-who-you">You</span>
+                            <h3>Pay the artisan directly</h3>
+                            <p>By mBoB, BNB mPay or bank transfer into the artisan's own account, with your receipt attached.</p>
+                        </li>
+                        <li>
+                            <span class="about-step-num">6</span>
+                            <span class="about-who">Artisan</span>
+                            <h3>Ships to you</h3>
+                            <p>Confirms your payment arrived, then sends the piece from their workshop to your door.</p>
+                        </li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- Values -->
+            <section class="px-6 md:px-10 py-10 md:py-12">
+                <div class="max-w-5xl mx-auto bg-white rounded-lg px-6 py-8 md:px-10 text-center">
+                <p class="about-eyebrow mb-6">— Our Values</p>
+                <div class="grid md:grid-cols-3 gap-8">
                     <div>
-                        <h4 class="font-bold text-gray-800 mb-2">Gross National Happiness</h4>
-                        <p class="text-xs text-gray-500 leading-relaxed">We measure success in the wellbeing of makers, not just the volume of sales.</p>
+                        <h4 class="about-value-title">Gross National Happiness</h4>
+                        <span class="about-rule" aria-hidden="true"></span>
+                        <p class="text-sm text-gray-500 leading-relaxed max-w-xs mx-auto">We measure success in the wellbeing of makers, not just the volume of sales.</p>
                     </div>
                     <div>
-                        <h4 class="font-bold text-gray-800 mb-2">Zorig Chusum</h4>
-                        <p class="text-xs text-gray-500 leading-relaxed">Preserving Bhutan's thirteen traditional arts — from thag-zo weaving to shing-zo woodwork.</p>
+                        <h4 class="about-value-title">Zorig Chusum</h4>
+                        <span class="about-rule" aria-hidden="true"></span>
+                        <p class="text-sm text-gray-500 leading-relaxed max-w-xs mx-auto">Preserving Bhutan's thirteen traditional arts — from thag-zo weaving to shing-zo woodwork.</p>
                     </div>
                     <div>
-                        <h4 class="font-bold text-gray-800 mb-2">Livelihood</h4>
-                        <p class="text-xs text-gray-500 leading-relaxed">We aim to provide financial independence to every artist.</p>
+                        <h4 class="about-value-title">Livelihood</h4>
+                        <span class="about-rule" aria-hidden="true"></span>
+                        <p class="text-sm text-gray-500 leading-relaxed max-w-xs mx-auto">We aim to provide financial independence to every artist.</p>
                     </div>
                 </div>
-            </div>
+                </div>
+            </section>
+
+            <!-- FAQ: native <details> opens with Enter/Space, no JS needed -->
+            <section class="bg-white px-6 md:px-10 py-10 md:py-12">
+                <div class="max-w-3xl mx-auto">
+                    <p class="about-eyebrow mb-2">— Questions</p>
+                    <h2 class="about-h2 mb-5">Good to know</h2>
+                    <div class="about-faq">
+                        <details>
+                            <summary>How do I pay for a piece?</summary>
+                            <p>At checkout you pay each artisan directly by mBoB, BNB mPay or bank transfer to the account shown, then attach your receipt. The artisan checks that the money arrived and ships your piece.</p>
+                        </details>
+                        <details>
+                            <summary>Why did my bag turn into several orders?</summary>
+                            <p>Each artisan is paid into their own account, so Labzo creates one order per artisan. You can follow each one under Orders.</p>
+                        </details>
+                        <details>
+                            <summary>Can I cancel an order?</summary>
+                            <p>Yes, from Orders, any time before the artisan confirms your payment. After that only the artisan can cancel, and if they do, they refund your transfer.</p>
+                        </details>
+                        <details>
+                            <summary>What does the Verified badge mean?</summary>
+                            <p>Labzo's team has reviewed the artisan and their craft. Sellers who are still being reviewed can list pieces, but they don't show the badge yet.</p>
+                        </details>
+                        <details>
+                            <summary>Where does the 8% go?</summary>
+                            <p>It's Labzo's flat fee on each sale and keeps the marketplace running. The artisan keeps the other 92% and pays the 8% to Labzo after the sale.</p>
+                        </details>
+                        <details>
+                            <summary>How do I start selling on Labzo?</summary>
+                            <p>Log out, choose Sell artwork on the login page and complete the three-step registration. Then add the bank account buyers will pay into from your profile. Buyers can't check out your pieces until it's there.</p>
+                        </details>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Call to action (renderAboutCta picks the second card by role) -->
+            <section class="px-6 md:px-10 py-10 md:py-12">
+                <div id="about-cta" class="max-w-6xl mx-auto grid md:grid-cols-2 gap-4"></div>
+            </section>
+
+            <!-- Team (edit the TEAM list in script.js) -->
+            <section class="px-6 md:px-10 py-10 md:py-12">
+                <div class="max-w-5xl mx-auto text-center">
+                    <p class="about-eyebrow mb-2">— The team</p>
+                    <h2 class="about-h2">Built by Capstone Group 3</h2>
+                    <p class="text-gray-500 text-sm mt-1 mb-8">Software engineering students in Phuentsholing, Bhutan.</p>
+                    <div id="about-team" class="flex flex-wrap justify-center gap-x-8 gap-y-8 md:gap-x-12"></div>
+                </div>
+            </section>
 
             <footer data-footer></footer>
         </div>
-
         <!-- ========================================== -->
         <!-- SCREEN: ARTIST DASHBOARD -->
         <!-- ========================================== -->
