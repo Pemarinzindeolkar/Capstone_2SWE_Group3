@@ -2144,8 +2144,7 @@ async function setArtisanStatus(id, status) {
 // ABOUT PAGE
 // ============================================================
 
-// Team cards — replace with your group's names and roles. photo is optional
-// (a path like 'team/pema.jpg' inside public/); without it the initials show.
+
 const TEAM = [
     { name: 'Pema R Deolkar', role: 'Fullstack' },
     { name: 'Dechen Dorji', role: 'Backend' },
